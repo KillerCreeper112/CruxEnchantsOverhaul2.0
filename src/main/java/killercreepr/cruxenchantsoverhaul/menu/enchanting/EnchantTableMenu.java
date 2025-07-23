@@ -302,14 +302,19 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
     }*/
 
     public CruxItem buildEnchantItem(EEnchant enchant){
-        int level = getNextEnchantLevel(enchant);
+        int maxLevel = getMaxEnchantLevel(enchant);
+        int level = Math.min(getNextEnchantLevel(enchant), maxLevel);
         String name = enchant.displayName();
-        if(level > 1 || getMaxEnchantLevel(enchant) > 1){
-            name += " " + CruxMath.numeral(level);
+        if(level > 1 || maxLevel > 1){
+            name += " " + CruxMath.numeral(level) + " <gray>/</gray> " + CruxMath.numeral(maxLevel);
         }
         return CruxItem.wrap(enchant.getIcon())
             .customName("<!i><yellow>" + name)
             .editThis(crux ->{
+                crux.insertLoreFromString(0,
+                    "<white><latinfont:Enchant Usage>: <gold>" + (enchant.enchantUsage() * level),
+                    ""
+                );
                 crux.addLoreFromString(
                     ""
                 );
@@ -551,9 +556,11 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
             }
             return;
         }
+        //todo
         EnchantRequirements requirements = new EnchantRequirements(this);
         requirements.lapis = 1;
         requirements.exp = 10;
+        requirements.requiredLevel = 2;
         requirements.ingredients = selectedIngredients;
         this.enchantRequirements = requirements;
 
