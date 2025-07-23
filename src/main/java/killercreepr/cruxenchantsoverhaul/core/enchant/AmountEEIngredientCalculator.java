@@ -11,6 +11,7 @@ import killercreepr.cruxcrafting.core.crafting.ingredient.SimpleWrappedKeyedReci
 import killercreepr.cruxcrafting.core.crafting.ingredient.SimpleWrappedRecipeIngredient;
 import killercreepr.cruxenchantsoverhaul.api.enchant.EEIngredientCalculator;
 import org.bukkit.entity.Entity;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -44,7 +45,13 @@ public class AmountEEIngredientCalculator implements EEIngredientCalculator {
                 continue;
             }
             if((ingredient instanceof SimpleRecipeIngredient recipe)){
-                recipe = new SimpleRecipeIngredient(recipe.getPredicate(), amount, recipe.getItemDisplays());
+                List<ItemStack> newList = new ArrayList<>();
+                recipe.getItemDisplays().forEach(item ->{
+                    item = item.clone();
+                    item.setAmount(amount);
+                    newList.add(item);
+                });
+                recipe = new SimpleRecipeIngredient(recipe.getPredicate(), amount, newList);
                 list.add(recipe);
                 continue;
             }

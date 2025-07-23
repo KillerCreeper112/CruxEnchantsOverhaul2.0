@@ -168,6 +168,7 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
 
     public ItemStack buildEnchantItem(EEnchant enchant){
         return CruxItem.wrap(enchant.getIcon())
+            .customName(CruxItem.NO_ITALICS.append(enchant.displayName(getNextEnchantLevel(enchant))))
             .editThis(crux ->{
                 crux.addLoreFromString(
                     "",
@@ -204,11 +205,15 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
     protected final List<EEnchant> currentEnchantList = new ArrayList<>();
     protected EEnchant selectedEnchant;
     protected List<CruxRecipeIngredient> selectedIngredients;
+    protected boolean selectedView = false;
     public void updateEnchantList(){
         if(currentEnchantList.isEmpty()){
             if(selectedEnchant != null){
                 setSelectedEnchant(null);
-                refreshReconstruct();
+                if(selectedView){
+                    refreshReconstruct();
+                    selectedView = false;
+                }
             }
             for(Integer slot : getEnchantmentListSlots()) {
                 slots.remove(slot);
@@ -218,9 +223,12 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         }
 
         if(selectedEnchant != null){
-            reconstruct(buildSize(), holder.getRegistry().getFormat()
-                    .deserialize(holder.info().getOrThrow("select_title", String.class)),
-                true, true);
+            if(!selectedView){
+                reconstruct(buildSize(), holder.getRegistry().getFormat()
+                        .deserialize(holder.info().getOrThrow("select_title", String.class)),
+                    true, true);
+                selectedView = true;
+            }
             for(Integer slot : getEnchantmentListSlots()){
                 slots.remove(slot);
                 setItem(slot, null, true);
@@ -251,7 +259,10 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
             }
             return;
         }
-        refreshReconstruct();
+        if(selectedView){
+            refreshReconstruct();
+            selectedView = false;
+        }
 
         int index = -1;
         for(Integer slot : getEnchantmentListSlots()){
