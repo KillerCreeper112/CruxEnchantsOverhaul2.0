@@ -12,14 +12,12 @@ import killercreepr.cruxenchants.core.enchant.SimpleCruxEnchant;
 import killercreepr.cruxenchants.core.registries.CruxEnchantRegistries;
 import killercreepr.cruxenchantsoverhaul.api.enchant.EEIngredientCalculator;
 import killercreepr.cruxenchantsoverhaul.api.enchant.EEnchant;
-import killercreepr.cruxenchantsoverhaul.registries.EnchantsRegistries;
 import net.kyori.adventure.key.Key;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 
 public class SimpleEEnchant extends SimpleCruxEnchant implements EEnchant {
     protected final DynamicItem icon;
@@ -29,7 +27,8 @@ public class SimpleEEnchant extends SimpleCruxEnchant implements EEnchant {
     protected final NumberProvider requiredLevel;
     protected final NumberProvider requiredExp;
     protected final NumberProvider requiredLapis;
-    public SimpleEEnchant(Key key, String description, ApplicableItemGroup applicableItemGroup, DynamicItem icon, EEIngredientCalculator ingredientCalculator, NumberProvider requiredPower, NumberProvider requiredLevel, NumberProvider requiredExp, NumberProvider requiredLapis) {
+    protected final double quality;
+    public SimpleEEnchant(Key key, String description, ApplicableItemGroup applicableItemGroup, DynamicItem icon, EEIngredientCalculator ingredientCalculator, NumberProvider requiredPower, NumberProvider requiredLevel, NumberProvider requiredExp, NumberProvider requiredLapis, double quality) {
         super(key, description, applicableItemGroup);
         this.icon = icon;
         this.ingredientCalculator = ingredientCalculator;
@@ -37,6 +36,7 @@ public class SimpleEEnchant extends SimpleCruxEnchant implements EEnchant {
         this.requiredLevel = requiredLevel;
         this.requiredExp = requiredExp;
         this.requiredLapis = requiredLapis;
+        this.quality = quality;
     }
 
     @Override
@@ -96,6 +96,11 @@ public class SimpleEEnchant extends SimpleCruxEnchant implements EEnchant {
     @Override
     public NumberProvider requiredLapis() {
         return requiredLapis;
+    }
+
+    @Override
+    public double quality() {
+        return quality;
     }
 
     @Override

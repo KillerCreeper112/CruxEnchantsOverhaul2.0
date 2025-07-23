@@ -3,6 +3,7 @@ package killercreepr.cruxenchantsoverhaul;
 import com.google.common.reflect.TypeToken;
 import killercreepr.crux.api.data.DataExchange;
 import killercreepr.crux.api.text.tags.container.MergedTagContainer;
+import killercreepr.crux.api.valueproviders.number.NumberProvider;
 import killercreepr.crux.core.Crux;
 import killercreepr.crux.core.plugin.CruxPlugin;
 import killercreepr.crux.core.plugin.module.StandardModules;
@@ -24,6 +25,7 @@ import killercreepr.cruxenchantsoverhaul.config.CfgHook;
 import killercreepr.cruxenchantsoverhaul.config.Config;
 import killercreepr.cruxenchantsoverhaul.config.handler.FileAnvilRecipe;
 import killercreepr.cruxenchantsoverhaul.config.handler.FileAnvilRepairIngredient;
+import killercreepr.cruxenchantsoverhaul.config.handler.FileEEnchant;
 import killercreepr.cruxenchantsoverhaul.enchanting.EEnchanter;
 import killercreepr.cruxenchantsoverhaul.enchanting.Enchanter;
 import killercreepr.cruxenchantsoverhaul.item.CfgMagicCapacityHandler;
@@ -177,6 +179,11 @@ public class CruxEnchantsOverhaul extends CruxPlugin {
 
         DataFile eeCfg = BukkitDataFile.parseFromGeneralPath(CruxFolder.file(this, "eenchants"));
         if(eeCfg != null){
+            FileEEnchant.defaultRequiredLevel = eeCfg.deserialize("default_required_level", NumberProvider.class);
+            FileEEnchant.defaultRequiredPower = eeCfg.deserialize("default_required_power", NumberProvider.class);
+            FileEEnchant.defaultRequiredExp = eeCfg.deserialize("default_required_exp", NumberProvider.class);
+            FileEEnchant.defaultRequiredLapis = eeCfg.deserialize("default_required_lapis", NumberProvider.class);
+
             Collection<EEnchant> list = eeCfg.deserialize("values", new TypeToken<Collection<EEnchant>>(){}.getType());
             if(list != null){
                 list.forEach(ee ->{

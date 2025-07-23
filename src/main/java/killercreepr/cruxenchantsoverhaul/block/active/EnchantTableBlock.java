@@ -78,7 +78,7 @@ public class EnchantTableBlock extends SimpleActiveCruxBlock implements ManagedT
 
 
     protected int power;
-    protected final int maxPower = 100;
+    protected final int maxPower = 300;//100;
     protected final CustomBlockData data;
     protected final EnchantData enchantData = new EnchantData();
     public EnchantTableBlock(@NotNull Block block, @NotNull CruxBlock cruxBlock) {

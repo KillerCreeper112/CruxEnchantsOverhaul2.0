@@ -582,6 +582,7 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
             .hook(e)
             .add(Tag.parsed("level", level + ""))
             .add(Tag.parsed("power", block.getPower() + ""))
+            .add(Tag.parsed("quality", selectedEnchant.quality() + ""))
             .add(Tag.parsed("level_zero", Math.max(level-1, 0) + ""))
             .add(Tag.parsed("max_level", getMaxEnchantLevel(e, selectedEnchant) + ""))
         );

@@ -7,6 +7,7 @@ import killercreepr.cruxenchants.api.enchant.CruxEnchant;
 import killercreepr.cruxenchantsoverhaul.CruxEnchantsOverhaul;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Collection;
 import java.util.Map;
@@ -20,6 +21,9 @@ public interface EEnchant extends CruxEnchant {
     NumberProvider requiredLevel();
     NumberProvider requiredExp();
     NumberProvider requiredLapis();
+
+    @ApiStatus.Experimental
+    double quality();
 
     EEIngredientCalculator ingredientCalculator();
 

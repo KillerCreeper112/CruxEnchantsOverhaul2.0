@@ -14,6 +14,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class FileEEnchant implements FileObjectHandler<EEnchant> {
+    public static NumberProvider defaultRequiredPower;
+    public static NumberProvider defaultRequiredLevel;
+    public static NumberProvider defaultRequiredExp;
+    public static NumberProvider defaultRequiredLapis;
+
     @Override
     public @NotNull FileElement serializeToFile(@NotNull FileContext<?> ctx, @NotNull EEnchant recipe) {
         throw new UnsupportedOperationException();
@@ -29,10 +34,11 @@ public class FileEEnchant implements FileObjectHandler<EEnchant> {
         String description = r.deserializeFromFile(String.class, o.get("description"));
         return new SimpleEEnchant(
             enchant, description, null, icon, ingredientCalculator,
-            r.deserializeFromFile(NumberProvider.class, o.get("required_power")),
-            r.deserializeFromFile(NumberProvider.class, o.get("required_level")),
-            r.deserializeFromFile(NumberProvider.class, o.get("required_exp")),
-            r.deserializeFromFile(NumberProvider.class, o.get("required_lapis"))
+            r.deserializeFromFileOrDefault(NumberProvider.class, o.get("required_power"), defaultRequiredPower),
+            r.deserializeFromFileOrDefault(NumberProvider.class, o.get("required_level"), defaultRequiredLevel),
+            r.deserializeFromFileOrDefault(NumberProvider.class, o.get("required_exp"), defaultRequiredExp),
+            r.deserializeFromFileOrDefault(NumberProvider.class, o.get("required_lapis"), defaultRequiredLapis),
+            r.deserializeFromFileOrDefault(Double.class, o.get("quality"), 1D)
         );
     }
 }
