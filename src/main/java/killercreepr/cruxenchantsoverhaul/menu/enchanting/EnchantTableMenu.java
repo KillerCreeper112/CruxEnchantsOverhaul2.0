@@ -190,7 +190,7 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         int maxLevel = getMaxEnchantLevel(e, enchant);
         if(level >= maxLevel) return CanUpgradeEnchant.MAX_LEVEL;
 
-        if(!hasEnoughPowerFor(enchant, level)) return CanUpgradeEnchant.NOT_ENOUGH_POWER;
+        if(!hasEnoughPowerFor(INPUT.getItem(),enchant, level+1)) return CanUpgradeEnchant.NOT_ENOUGH_POWER;
 
         if(hasConflictions(INPUT.getItem(), enchant)) return CanUpgradeEnchant.HAS_CONFLICTS;
 
@@ -286,8 +286,8 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         for (EEnchant ench : EnchantsRegistries.EENCHANT) {
             if (!ench.canEnchantItem(item)) continue;
 
-            int level = getNextEnchantLevel(ench);
-            if(level == 1 && !hasEnoughPowerFor(ench, level)){
+            int level = getNextEnchantLevel(item, ench);
+            if(level == 1 && !hasEnoughPowerFor(item,ench, level)){
                 continue;
             }
 
@@ -426,7 +426,9 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
     }
 
     public int getNextEnchantLevel(EEnchant enchant){
-        ItemStack input = INPUT.getItem();
+        return getNextEnchantLevel(INPUT.getItem(), enchant);
+    }
+    public int getNextEnchantLevel(ItemStack input, EEnchant enchant){
         if(input == null) return 0;
         int level = input.getEnchantmentLevel(enchant.enchantment());
         return level + 1;
@@ -583,7 +585,7 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         );
     }
 
-    public boolean hasEnoughPowerFor(EEnchant enchant, int level){
+    public boolean hasEnoughPowerFor(ItemStack item, EEnchant enchant, int level){
         if(enchant.requiredPower() == null) return true;
         int needed = enchant.requiredPower().sample(buildInputContext(enchant, level)).intValue();
         return block.getPower() >= needed;
