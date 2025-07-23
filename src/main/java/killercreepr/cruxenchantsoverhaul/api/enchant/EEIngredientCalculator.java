@@ -8,5 +8,5 @@ import java.util.Collection;
 import java.util.List;
 
 public interface EEIngredientCalculator {
-    @NotNull List<CruxRecipeIngredient> calculateIngredients(Entity entity, int level);
+    @NotNull List<CruxRecipeIngredient> calculateIngredients(Entity entity, int level, float quality);
 }

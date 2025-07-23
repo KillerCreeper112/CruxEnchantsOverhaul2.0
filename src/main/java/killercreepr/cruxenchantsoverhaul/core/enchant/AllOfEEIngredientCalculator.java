@@ -18,10 +18,10 @@ public class AllOfEEIngredientCalculator implements EEIngredientCalculator {
 
     @NotNull
     @Override
-    public List<CruxRecipeIngredient> calculateIngredients(Entity entity, int level) {
+    public List<CruxRecipeIngredient> calculateIngredients(Entity entity, int level, float quality) {
         List<CruxRecipeIngredient> list = new ArrayList<>();
         children.forEach(calc ->{
-            list.addAll(calc.calculateIngredients(entity, level));
+            list.addAll(calc.calculateIngredients(entity, level, quality));
         });
         return list;
     }

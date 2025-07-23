@@ -183,6 +183,7 @@ public class CruxEnchantsOverhaul extends CruxPlugin {
             FileEEnchant.defaultRequiredPower = eeCfg.deserialize("default_required_power", NumberProvider.class);
             FileEEnchant.defaultRequiredExp = eeCfg.deserialize("default_required_exp", NumberProvider.class);
             FileEEnchant.defaultRequiredLapis = eeCfg.deserialize("default_required_lapis", NumberProvider.class);
+            FileEEnchant.defaultIngredientAmount = eeCfg.deserialize("default_ingredient_amount", NumberProvider.class);
 
             Collection<EEnchant> list = eeCfg.deserialize("values", new TypeToken<Collection<EEnchant>>(){}.getType());
             if(list != null){

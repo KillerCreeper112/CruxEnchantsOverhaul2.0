@@ -29,10 +29,11 @@ public class AmountEEIngredientCalculator implements EEIngredientCalculator {
 
     @NotNull
     @Override
-    public List<CruxRecipeIngredient> calculateIngredients(Entity entity, int level) {
+    public List<CruxRecipeIngredient> calculateIngredients(Entity entity, int level, float quality) {
         List<CruxRecipeIngredient> list = new ArrayList<>();
         int amount = this.amount.sample(InputContext.inputContext(TagContainer.string().hook(entity)
-            .add(Tag.parsed("level", level+"")))).intValue();
+            .add(Tag.parsed("level", level+""))
+            .add(Tag.parsed("quality", quality+"")))).intValue();
         for (CruxRecipeIngredient ingredient : ingredients) {
             if((ingredient instanceof SimpleWrappedKeyedRecipeIngredient recipe)){
                 recipe = new SimpleWrappedKeyedRecipeIngredient(recipe.getIngredient(), amount, recipe.key());

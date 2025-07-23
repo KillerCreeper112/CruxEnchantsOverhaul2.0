@@ -463,7 +463,8 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
             this.selectedIngredients = null;
             return;
         }
-        this.selectedIngredients = selectedEnchant.ingredientCalculator().calculateIngredients(getViewer(), getNextEnchantLevel(selectedEnchant));
+        this.selectedIngredients = selectedEnchant.ingredientCalculator().calculateIngredients(getViewer(), getNextEnchantLevel(selectedEnchant),
+            (float) selectedEnchant.quality());
     }
 
     protected final List<EEnchant> currentEnchantList = new ArrayList<>();
@@ -537,7 +538,7 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
 
             int level = getNextEnchantLevel(selectedEnchant);
             List<CruxRecipeIngredient> ingredients = eEnchant.ingredientCalculator().calculateIngredients(
-                getViewer(), level
+                getViewer(), level, (float) selectedEnchant.quality()
             );
             int index = -1;
             for(Integer slot : getSelectIngredientSlots()){
@@ -655,7 +656,8 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         return CruxItem.create(Material.EXPERIENCE_BOTTLE)
             .itemName("<white>Required Level")
             .addLoreFromString(
-                requirementText(getLevel(getViewer()), requirements.requiredLevel)
+                requirementText(getLevel(getViewer()), requirements.requiredLevel),
+                "<gray>Power: " + requirementText(block.getPower(), requirements.requiredPower)
             )
             .amount(Math.min(requirements.requiredLevel, 99))
             .item();

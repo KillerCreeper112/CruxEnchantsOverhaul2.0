@@ -17,7 +17,7 @@ public class SimpleEEIngredientCalculator implements EEIngredientCalculator {
 
     @NotNull
     @Override
-    public List<CruxRecipeIngredient> calculateIngredients(Entity entity, int level) {
+    public List<CruxRecipeIngredient> calculateIngredients(Entity entity, int level, float quality) {
         return ingredients;
     }
 }

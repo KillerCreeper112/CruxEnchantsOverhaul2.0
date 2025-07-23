@@ -50,7 +50,7 @@ public class FileEEIngredientCalculator implements FileObjectHandler<EEIngredien
                         new TypeToken<Collection<CruxRecipeIngredient>>(){}.getType(),
                         o.get("ingredients")
                     ),
-                    r.deserializeFromFile(NumberProvider.class, o.get("amount"))
+                    FileEEnchant.equation("amount", r, o, FileEEnchant.defaultIngredientAmount)
                 );
             }
             case "simple" ->{

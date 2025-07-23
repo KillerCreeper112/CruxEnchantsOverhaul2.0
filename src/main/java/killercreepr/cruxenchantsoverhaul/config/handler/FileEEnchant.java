@@ -2,7 +2,10 @@ package killercreepr.cruxenchantsoverhaul.config.handler;
 
 import killercreepr.crux.api.item.dynamic.DynamicItem;
 import killercreepr.crux.api.valueproviders.number.NumberProvider;
+import killercreepr.crux.core.valueproviders.number.ConstantNumber;
+import killercreepr.crux.core.valueproviders.number.EquationNumber;
 import killercreepr.cruxconfig.config.common.FileContext;
+import killercreepr.cruxconfig.config.common.FileRegistry;
 import killercreepr.cruxconfig.config.common.element.FileElement;
 import killercreepr.cruxconfig.config.common.element.FileObject;
 import killercreepr.cruxconfig.config.common.handler.FileObjectHandler;
@@ -18,6 +21,7 @@ public class FileEEnchant implements FileObjectHandler<EEnchant> {
     public static NumberProvider defaultRequiredLevel;
     public static NumberProvider defaultRequiredExp;
     public static NumberProvider defaultRequiredLapis;
+    public static NumberProvider defaultIngredientAmount;
 
     @Override
     public @NotNull FileElement serializeToFile(@NotNull FileContext<?> ctx, @NotNull EEnchant recipe) {
@@ -34,11 +38,22 @@ public class FileEEnchant implements FileObjectHandler<EEnchant> {
         String description = r.deserializeFromFile(String.class, o.get("description"));
         return new SimpleEEnchant(
             enchant, description, null, icon, ingredientCalculator,
-            r.deserializeFromFileOrDefault(NumberProvider.class, o.get("required_power"), defaultRequiredPower),
-            r.deserializeFromFileOrDefault(NumberProvider.class, o.get("required_level"), defaultRequiredLevel),
-            r.deserializeFromFileOrDefault(NumberProvider.class, o.get("required_exp"), defaultRequiredExp),
-            r.deserializeFromFileOrDefault(NumberProvider.class, o.get("required_lapis"), defaultRequiredLapis),
+            equation("required_power", r, o, defaultRequiredPower),
+            equation("required_level", r, o, defaultRequiredLevel),
+            equation("required_exp", r, o, defaultRequiredExp),
+            equation("required_lapis", r, o, defaultRequiredLapis),
             r.deserializeFromFileOrDefault(Double.class, o.get("quality"), 1D)
         );
+    }
+
+    public static NumberProvider equation(String id, FileRegistry r, FileObject o, NumberProvider defaultValue){
+        NumberProvider got = r.deserializeFromFile(NumberProvider.class, o.get(id));
+        if(got != null) return got;
+        String addon = o.getObject(String.class, id + "_addon");
+        if(addon == null) return defaultValue;
+        if(defaultValue instanceof EquationNumber equationNumber){
+            return new EquationNumber(addon + equationNumber.getEquation());
+        }
+        return defaultValue;
     }
 }
