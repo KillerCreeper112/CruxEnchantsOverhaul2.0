@@ -1,0 +1,14 @@
+name: CruxEnchantsOverhaul
+version: '2.0'
+main: killercreepr.cruxenchantsoverhaul.CruxEnchantsOverhaul
+api-version: '1.19'
+dependencies:
+  server:
+    CruxCore:
+      load: BEFORE
+      required: true # Defaults to true
+      join-classpath: true # Defaults to true
+    CruxCharms:
+      required: false
+  #commands:
+  #reloadcruxe:
