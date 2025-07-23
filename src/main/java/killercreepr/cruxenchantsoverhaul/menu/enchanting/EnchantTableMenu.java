@@ -4,6 +4,7 @@ import killercreepr.crux.api.data.DataExchange;
 import killercreepr.crux.api.item.CruxItem;
 import killercreepr.crux.api.text.tags.container.MergedTagContainer;
 import killercreepr.crux.core.Crux;
+import killercreepr.crux.core.util.CruxEntityUtil;
 import killercreepr.crux.core.util.CruxMath;
 import killercreepr.crux.core.util.CruxString;
 import killercreepr.crux.core.util.CruxTag;
@@ -17,6 +18,7 @@ import killercreepr.cruxenchantsoverhaul.enchanting.Enchanter;
 import killercreepr.cruxenchantsoverhaul.item.EItems;
 import killercreepr.cruxenchantsoverhaul.registries.EnchantsRegistries;
 import killercreepr.cruxmenus.api.menu.container.MenuContainer;
+import killercreepr.cruxmenus.api.menu.contex.SlotContext;
 import killercreepr.cruxmenus.api.menu.holder.MenuHolder;
 import killercreepr.cruxmenus.api.menu.slot.Slot;
 import killercreepr.cruxmenus.api.menu.slot.TempSlotted;
@@ -81,23 +83,35 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
             public @NotNull Integer getMaxStackSize() {
                 return 1;
             }
-        };
-        RESULT = new SimpleSlot(this, getResultSlot()) {
+
             @Override
             public boolean mayPlace(@NotNull HumanEntity p, @Nullable ItemStack item) {
-                return false;
+                if(CruxItem.isEmpty(item)) return true;
+                return !LAPIS.mayPlace(p, item);
             }
-
+        };
+        RESULT = new SimpleFixedSlot(this, getResultSlot()) {
             @Override
-            public boolean mayTake(@NotNull HumanEntity p, @Nullable ItemStack item) {
-                if(CruxItem.isEmpty(item)) return false;
-                if(CruxTag.has(item, "menu_fixed")) return false;
-                if(selectedEnchant == null) return false;
-                if(enchantRequirements == null) return false;
-                if(INPUT.isBlank(INPUT.getItem())) return false;
+            public void onClick(@NotNull HumanEntity p, @NotNull InventoryClickEvent event) {
+                super.onClick(p, event);
 
-                var result = enchantRequirements.hasRequirements(p);
-                return result == EnchantRequirements.RequirementResult.SUCCESS;
+                ItemStack item = event.getCurrentItem();
+
+                if(isBlank(item)) return;
+                if(CruxTag.has(item, "menu_fixed")) return;;
+                if(selectedEnchant == null) return;
+                if(enchantRequirements == null) return;
+                if(INPUT.isBlank(INPUT.getItem())) return;
+
+                var requirementResult = enchantRequirements.hasRequirements(p);
+                if(requirementResult != EnchantRequirements.RequirementResult.SUCCESS) return;
+
+                removeCosts(p, enchantRequirements);
+
+                ItemStack result = item.clone();
+                INPUT.setItem(result, true);
+                setSelectedEnchant(selectedEnchant);
+                update();
             }
         };
         LAPIS = new SimpleTempStoredSlot(this, getLapisSlot()) {
@@ -108,6 +122,11 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
             @Override
             public @NotNull ItemStack getSlottedItemReplacement() {
                 return EItems.EMPTY_SLOT_LAPIS.buildItem();
+            }
+
+            @Override
+            public boolean isBlank(@Nullable ItemStack item) {
+                return super.isBlank(item) || CruxTag.has(item, "menu_fixed");
             }
         };
         NEXT_PAGE = new SimpleFixedSlot(this, getNextPageSlot()) {
@@ -144,6 +163,10 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         container.addOpenedMenu(this);
     }
 
+    public void removeCosts(Entity e, EnchantRequirements requirements){
+        requirements.removeCosts(e);
+    }
+
     public int getMaxPage(){
         return Math.max((int)Math.ceil((double)currentEnchantList.size() / (double)getEnchantmentListSlots().size()) - 1, 0);
     }
@@ -178,23 +201,29 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
     public List<Integer> getSelectIngredientSlots(){
         return holder.info().getOrThrow("select_ingredients_indexes", List.class);
     }
-    public Integer getSelectIconSlot(){
+    public int getSelectIconSlot(){
         return holder.info().getOrThrow("select_icon_index", Number.class).intValue();
     }
-    public Integer getInputSlot(){
+    public int getInputSlot(){
         return holder.info().getOrThrow("input_slot", Number.class).intValue();
     }
-    public Integer getLapisSlot(){
+    public int getLapisSlot(){
         return holder.info().getOrThrow("lapis_slot", Number.class).intValue();
     }
-    public Integer getResultSlot(){
+    public int getResultSlot(){
         return holder.info().getOrThrow("result_slot", Number.class).intValue();
     }
-    public Integer getNextPageSlot(){
+    public int getNextPageSlot(){
         return holder.info().getOrThrow("next_page_slot", Number.class).intValue();
     }
-    public Integer getBackPageSlot(){
+    public int getBackPageSlot(){
         return holder.info().getOrThrow("back_page_slot", Number.class).intValue();
+    }
+    public int getRequiredXPSlot(){
+        return holder.info().getOrThrow("required_xp_slot", Number.class).intValue();
+    }
+    public int getRequiredLapisSlot(){
+        return holder.info().getOrThrow("required_lapis_slot", Number.class).intValue();
     }
 
     public ItemStack buildResult(ItemStack input){
@@ -204,7 +233,7 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         ItemStack result = input.clone();
         result.addUnsafeEnchantment(selectedEnchant.enchantment(), newLevel);
         Crux.handlers().item().update(result, getViewer());
-        return input;
+        return result;
     }
 
     public List<EEnchant> getAvailableEnchants(ItemStack item){
@@ -217,16 +246,21 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         return list;
     }
 
-    public ItemStack buildEnchantItem(EEnchant enchant){
+    public CruxItem buildEnchantItem(EEnchant enchant){
+        int level = getNextEnchantLevel(enchant);
+        String name = enchant.displayName();
+        if(level > 1 || getMaxEnchantLevel(enchant) > 1){
+            name += " " + CruxMath.numeral(level);
+        }
+
+
         return CruxItem.wrap(enchant.getIcon())
-            .customName(CruxItem.NO_ITALICS.append(enchant.displayName(getNextEnchantLevel(enchant))))
+            .customName("<!i><yellow>" + name)
             .editThis(crux ->{
                 crux.addLoreFromString(
-                    "",
-                    "test"
+                    ""
                 );
-            })
-            .item();
+            });
     }
 
     public Entity getViewer(){
@@ -258,14 +292,39 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
     protected List<CruxRecipeIngredient> selectedIngredients;
     protected EnchantRequirements enchantRequirements;
     protected boolean selectedView = false;
+
+    public boolean changeView(boolean selectedView){
+        if(selectedView){
+            addSlot(RESULT);
+        }
+        if(selectedView == this.selectedView) return false;
+        if(selectedView){
+            reconstruct(buildSize(), holder.getRegistry().getFormat()
+                    .deserialize(holder.info().getOrThrow("select_title", String.class)),
+                true, true);
+            this.selectedView = true;
+        }else{
+            refreshReconstruct();
+            this.selectedView = false;
+            putSlot(RESULT.getIndex(), null);
+
+            if(getViewer() instanceof HumanEntity p){
+                getIngredientInputSlots().forEach(slot ->{
+                    ItemStack item = getInventory().getItem(slot);
+                    if(CruxItem.isEmpty(item)) return;
+                    CruxEntityUtil.giveOrDrop(p, item.clone());
+                    item.setAmount(0);
+                });
+            }
+        }
+        return true;
+    }
+
     public void updateEnchantList(){
         if(currentEnchantList.isEmpty()){
             if(selectedEnchant != null){
                 setSelectedEnchant(null);
-                if(selectedView){
-                    refreshReconstruct();
-                    selectedView = false;
-                }
+                changeView(false);
             }
             for(Integer slot : getEnchantmentListSlots()) {
                 slots.remove(slot);
@@ -275,20 +334,19 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         }
 
         if(selectedEnchant != null){
-            if(!selectedView){
-                reconstruct(buildSize(), holder.getRegistry().getFormat()
-                        .deserialize(holder.info().getOrThrow("select_title", String.class)),
-                    true, true);
-                selectedView = true;
-            }
             for(Integer slot : getEnchantmentListSlots()){
-                slots.remove(slot);
+                putSlot(slot, null);
                 setItem(slot, null, true);
             }
+            changeView(true);
 
             EEnchant eEnchant = selectedEnchant;
             int selectIconSlot = getSelectIconSlot();
-            setItem(selectIconSlot, buildEnchantItem(eEnchant), new SimpleFixedSlot(this, selectIconSlot){
+            setItem(selectIconSlot,
+                buildEnchantItem(eEnchant)
+                    .addLoreFromString("<yellow><latinfont:Click to unselect>")
+                    .item(),
+                new SimpleFixedSlot(this, selectIconSlot){
                 @Override
                 public void onClick(@NotNull HumanEntity p, @NotNull InventoryClickEvent event) {
                     super.onClick(p, event);
@@ -311,10 +369,7 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
             }
             return;
         }
-        if(selectedView){
-            refreshReconstruct();
-            selectedView = false;
-        }
+        changeView(false);
 
         int index = -1;
         for(Integer slot : getEnchantmentListSlots()){
@@ -325,7 +380,11 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
                 continue;
             }
             EEnchant eEnchant = currentEnchantList.get(index);
-            setItem(slot, buildEnchantItem(eEnchant), new SimpleFixedSlot(this, slot){
+            setItem(slot,
+                buildEnchantItem(eEnchant)
+                    .addLoreFromString("<yellow><latinfont:Click to select>")
+                    .item(),
+                new SimpleFixedSlot(this, slot){
                 @Override
                 public void onClick(@NotNull HumanEntity p, @NotNull InventoryClickEvent event) {
                     super.onClick(p, event);
@@ -341,6 +400,11 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         ItemStack input = INPUT.getItem();
         if(CruxItem.isEmpty(input) || selectedEnchant == null){
             enchantRequirements = null;
+
+            if(selectedView){
+                setItem(getRequiredXPSlot(), null, true);
+                setItem(getRequiredLapisSlot(), null, true);
+            }
             return;
         }
         EnchantRequirements requirements = new EnchantRequirements(this);
@@ -348,6 +412,33 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         requirements.exp = 10;
         requirements.ingredients = selectedIngredients;
         this.enchantRequirements = requirements;
+
+
+        setItem(getRequiredXPSlot(), buildRequiredXPItem(requirements), true);
+        setItem(getRequiredLapisSlot(), buildRequiredLapisItem(requirements), true);
+    }
+
+    public ItemStack buildRequiredXPItem(EnchantRequirements requirements){
+        if(requirements.exp < 1) return null;
+        return CruxItem.create(Material.EXPERIENCE_BOTTLE)
+            .itemModel(Crux.key("gui/exp_orb"))
+            .itemName("<white>Experience Points Cost")
+            .addLoreFromString(
+                "<green>" + CruxMath.format(requirements.exp)
+            )
+            .amount(Math.min(requirements.exp, 99))
+            .item();
+    }
+
+    public ItemStack buildRequiredLapisItem(EnchantRequirements requirements){
+        if(requirements.lapis < 1) return null;
+        return CruxItem.create(Material.LAPIS_LAZULI)
+            .itemName("<white>Lapis Lazuli Cost")
+            .addLoreFromString(
+                "<blue>" + CruxMath.format(requirements.lapis)
+            )
+            .amount(Math.min(requirements.lapis, 99))
+            .item();
     }
 
     public void updateInputData(){
@@ -375,6 +466,11 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         return 0;
     }
 
+    public int getLapisAmount(){
+        ItemStack lapis = LAPIS.getItem();
+        return LAPIS.isBlank(lapis) ? 0 : lapis.getAmount();
+    }
+
     public ItemStack buildDeniedResult(EnchantRequirements requirements, EnchantRequirements.RequirementResult result){
         return CruxItem.create(Material.BARRIER)
             .editThis(crux ->{
@@ -385,8 +481,7 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
                 int maxAmount;
                 switch (result){
                     case NOT_ENOUGH_LAPIS_LAZULI -> {
-                        ItemStack lapis = LAPIS.getItem();
-                        amount = lapis == null ? 0 : lapis.getAmount();
+                        amount = getLapisAmount();
                         maxAmount = requirements.lapis;
                     }
                     case NOT_ENOUGH_EXPERIENCE_POINTS -> {
@@ -422,6 +517,7 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
     }
 
     public void updateResult(){
+        if(!selectedView) return;
         RESULT.setItem(buildResult(), true);
     }
 

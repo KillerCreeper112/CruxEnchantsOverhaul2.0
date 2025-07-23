@@ -21,6 +21,21 @@ public class EnchantRequirements {
         this.menu = menu;
     }
 
+    public void removeCosts(Entity e){
+        if(lapis > 0){
+            ItemStack item = menu.LAPIS.getItem();
+            if(!menu.LAPIS.isBlank(item)){
+                item.setAmount(item.getAmount()-lapis);
+            }
+        }
+        if(exp > 0 && e instanceof Player p){
+            p.setExperienceLevelAndProgress(Math.max(
+                p.calculateTotalExperiencePoints() - exp, 0
+            ));
+        }
+        if(ingredients != null) removeIngredients(ingredients);
+    }
+
     public RequirementResult hasRequirements(Entity e){
         if(!hasExperience(e, exp)) return RequirementResult.NOT_ENOUGH_EXPERIENCE_POINTS;
         if(!hasLapis(e, lapis)) return RequirementResult.NOT_ENOUGH_LAPIS_LAZULI;
@@ -30,7 +45,7 @@ public class EnchantRequirements {
 
     public boolean hasLapis(Entity e, int lapis){
         ItemStack item = menu.LAPIS.getItem();
-        if(CruxItem.isEmpty(item)) return false;
+        if(menu.LAPIS.isBlank(item)) return false;
         return item.getAmount() >= lapis;
     }
 
