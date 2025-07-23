@@ -190,9 +190,9 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         int maxLevel = getMaxEnchantLevel(e, enchant);
         if(level >= maxLevel) return CanUpgradeEnchant.MAX_LEVEL;
 
-        if(hasConflictions(INPUT.getItem(), enchant)) return CanUpgradeEnchant.HAS_CONFLICTS;
+        if(!hasEnoughPowerFor(enchant, level)) return CanUpgradeEnchant.NOT_ENOUGH_POWER;
 
-        //todo power
+        if(hasConflictions(INPUT.getItem(), enchant)) return CanUpgradeEnchant.HAS_CONFLICTS;
 
         return CanUpgradeEnchant.YES;
     }
@@ -285,6 +285,12 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         List<EEnchant> list = new ArrayList<>();
         for (EEnchant ench : EnchantsRegistries.EENCHANT) {
             if (!ench.canEnchantItem(item)) continue;
+
+            int level = getNextEnchantLevel(ench);
+            if(level == 1 && !hasEnoughPowerFor(ench, level)){
+                continue;
+            }
+
             list.add(ench);
         }
 
@@ -568,6 +574,21 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         }
     }
 
+    public InputContext buildInputContext(EEnchant selectedEnchant, int level){
+        Entity e = getViewer();
+        return InputContext.inputContext(TagContainer.string()
+            .hook(e)
+            .add(Tag.parsed("level", level + ""))
+            .add(Tag.parsed("max_level", getMaxEnchantLevel(e, selectedEnchant) + ""))
+        );
+    }
+
+    public boolean hasEnoughPowerFor(EEnchant enchant, int level){
+        if(enchant.requiredPower() == null) return true;
+        int needed = enchant.requiredPower().sample(buildInputContext(enchant, level)).intValue();
+        return block.getPower() >= needed;
+    }
+
     public void updateRequirements(){
         ItemStack input = INPUT.getItem();
         if(CruxItem.isEmpty(input) || selectedEnchant == null){
@@ -581,13 +602,7 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
             return;
         }
 
-        Entity e = getViewer();
-
-        InputContext ctx = InputContext.inputContext(TagContainer.string()
-            .hook(e)
-            .add(Tag.parsed("level", getNextEnchantLevel(selectedEnchant) + ""))
-            .add(Tag.parsed("max_level", getMaxEnchantLevel(e, selectedEnchant) + ""))
-        );
+        InputContext ctx = buildInputContext(selectedEnchant, getNextEnchantLevel(selectedEnchant));
         EnchantRequirements requirements = new EnchantRequirements(this);
         if(selectedEnchant.requiredLapis() != null){
             requirements.lapis = selectedEnchant.requiredLapis().sample(ctx).intValue();
@@ -597,6 +612,9 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         }
         if(selectedEnchant.requiredExp() != null){
             requirements.exp = selectedEnchant.requiredExp().sample(ctx).intValue();
+        }
+        if(selectedEnchant.requiredPower() != null){
+            requirements.requiredPower = selectedEnchant.requiredPower().sample(ctx).intValue();
         }
         requirements.ingredients = selectedIngredients;
         this.enchantRequirements = requirements;

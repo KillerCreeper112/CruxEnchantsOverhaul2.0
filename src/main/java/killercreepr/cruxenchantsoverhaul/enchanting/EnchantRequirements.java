@@ -17,6 +17,7 @@ public class EnchantRequirements {
     public int exp;
     public int lapis;
     public int requiredLevel;
+    public int requiredPower;
 
     public EnchantRequirements(EnchantTableMenu menu) {
         this.menu = menu;
@@ -47,7 +48,7 @@ public class EnchantRequirements {
 
     public boolean hasLapis(Entity e, int lapis){
         ItemStack item = menu.LAPIS.getItem();
-        if(menu.LAPIS.isBlank(item)) return false;
+        if(menu.LAPIS.isBlank(item) && lapis > 0) return false;
         return item.getAmount() >= lapis;
     }
 
