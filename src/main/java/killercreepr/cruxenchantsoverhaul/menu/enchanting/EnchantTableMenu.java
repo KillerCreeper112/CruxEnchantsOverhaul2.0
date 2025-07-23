@@ -722,6 +722,10 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
                         amount = getLevel(getViewer());
                         maxAmount = requirements.requiredLevel;
                     }
+                    case NOT_ENOUGH_POWER -> {
+                        amount = block.getPower();
+                        maxAmount = requirements.requiredPower;
+                    }
                     default -> {
                         return;
                     }

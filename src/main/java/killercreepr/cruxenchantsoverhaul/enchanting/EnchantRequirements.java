@@ -39,11 +39,16 @@ public class EnchantRequirements {
     }
 
     public RequirementResult hasRequirements(Entity e){
+        if(!hasPower(e, requiredPower)) return RequirementResult.NOT_ENOUGH_POWER;
         if(!hasRequiredLevel(e, requiredLevel)) return RequirementResult.NOT_REQUIRED_LEVEL;
         if(!hasExperience(e, exp)) return RequirementResult.NOT_ENOUGH_EXPERIENCE_POINTS;
         if(!hasLapis(e, lapis)) return RequirementResult.NOT_ENOUGH_LAPIS_LAZULI;
         if(ingredients != null && !hasIngredients(ingredients)) return RequirementResult.NOT_ENOUGH_INGREDIENTS;
         return RequirementResult.SUCCESS;
+    }
+
+    public boolean hasPower(Entity e, int power){
+        return menu.getBlock().getPower() >= power;
     }
 
     public boolean hasLapis(Entity e, int lapis){
@@ -99,6 +104,7 @@ public class EnchantRequirements {
         NOT_ENOUGH_LAPIS_LAZULI,
         NOT_ENOUGH_INGREDIENTS,
         NOT_REQUIRED_LEVEL,
+        NOT_ENOUGH_POWER,
         SUCCESS
     }
 }
