@@ -2,6 +2,7 @@ package killercreepr.cruxenchantsoverhaul.api.enchant;
 
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
+import killercreepr.crux.api.valueproviders.number.NumberProvider;
 import killercreepr.cruxenchants.api.enchant.CruxEnchant;
 import killercreepr.cruxenchantsoverhaul.CruxEnchantsOverhaul;
 import org.bukkit.enchantments.Enchantment;
@@ -14,6 +15,11 @@ public interface EEnchant extends CruxEnchant {
     ItemStack getIcon();
     boolean canEnchantItem(ItemStack item);
     boolean conflictsWith(EEnchant enchant);
+
+    NumberProvider requiredPower();
+    NumberProvider requiredLevel();
+    NumberProvider requiredExp();
+    NumberProvider requiredLapis();
 
     EEIngredientCalculator ingredientCalculator();
 

@@ -4,6 +4,7 @@ import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import killercreepr.crux.api.item.dynamic.DynamicItem;
 import killercreepr.crux.api.text.context.TextParserContext;
+import killercreepr.crux.api.valueproviders.number.NumberProvider;
 import killercreepr.crux.core.util.CruxString;
 import killercreepr.cruxenchants.api.enchant.ApplicableItemGroup;
 import killercreepr.cruxenchants.api.enchant.CruxEnchant;
@@ -24,10 +25,18 @@ public class SimpleEEnchant extends SimpleCruxEnchant implements EEnchant {
     protected final DynamicItem icon;
     protected final EEIngredientCalculator ingredientCalculator;
     protected Collection<Enchantment> conflictingEnchants;
-    public SimpleEEnchant(Key key, String description, ApplicableItemGroup applicableItemGroup, DynamicItem icon, EEIngredientCalculator ingredientCalculator) {
+    protected final NumberProvider requiredPower;
+    protected final NumberProvider requiredLevel;
+    protected final NumberProvider requiredExp;
+    protected final NumberProvider requiredLapis;
+    public SimpleEEnchant(Key key, String description, ApplicableItemGroup applicableItemGroup, DynamicItem icon, EEIngredientCalculator ingredientCalculator, NumberProvider requiredPower, NumberProvider requiredLevel, NumberProvider requiredExp, NumberProvider requiredLapis) {
         super(key, description, applicableItemGroup);
         this.icon = icon;
         this.ingredientCalculator = ingredientCalculator;
+        this.requiredPower = requiredPower;
+        this.requiredLevel = requiredLevel;
+        this.requiredExp = requiredExp;
+        this.requiredLapis = requiredLapis;
     }
 
     @Override
@@ -67,6 +76,26 @@ public class SimpleEEnchant extends SimpleCruxEnchant implements EEnchant {
     @Override
     public boolean conflictsWith(EEnchant enchant) {
         return enchantment().conflictsWith(enchant.enchantment());
+    }
+
+    @Override
+    public NumberProvider requiredPower() {
+        return requiredPower;
+    }
+
+    @Override
+    public NumberProvider requiredLevel() {
+        return requiredLevel;
+    }
+
+    @Override
+    public NumberProvider requiredExp() {
+        return requiredExp;
+    }
+
+    @Override
+    public NumberProvider requiredLapis() {
+        return requiredLapis;
     }
 
     @Override

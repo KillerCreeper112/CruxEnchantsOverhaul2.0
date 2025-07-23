@@ -1,6 +1,7 @@
 package killercreepr.cruxenchantsoverhaul.config.handler;
 
 import killercreepr.crux.api.item.dynamic.DynamicItem;
+import killercreepr.crux.api.valueproviders.number.NumberProvider;
 import killercreepr.cruxconfig.config.common.FileContext;
 import killercreepr.cruxconfig.config.common.element.FileElement;
 import killercreepr.cruxconfig.config.common.element.FileObject;
@@ -26,6 +27,12 @@ public class FileEEnchant implements FileObjectHandler<EEnchant> {
         DynamicItem icon = r.deserializeFromFile(DynamicItem.class, o.get("icon"));
         EEIngredientCalculator ingredientCalculator = r.deserializeFromFile(EEIngredientCalculator.class, o.get("ingredients"));
         String description = r.deserializeFromFile(String.class, o.get("description"));
-        return new SimpleEEnchant(enchant, description, null, icon, ingredientCalculator);
+        return new SimpleEEnchant(
+            enchant, description, null, icon, ingredientCalculator,
+            r.deserializeFromFile(NumberProvider.class, o.get("required_power")),
+            r.deserializeFromFile(NumberProvider.class, o.get("required_level")),
+            r.deserializeFromFile(NumberProvider.class, o.get("required_exp")),
+            r.deserializeFromFile(NumberProvider.class, o.get("required_lapis"))
+        );
     }
 }

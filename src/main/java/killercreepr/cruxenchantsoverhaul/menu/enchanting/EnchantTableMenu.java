@@ -3,8 +3,11 @@ package killercreepr.cruxenchantsoverhaul.menu.enchanting;
 import killercreepr.crux.api.communication.CreateSound;
 import killercreepr.crux.api.data.DataExchange;
 import killercreepr.crux.api.item.CruxItem;
+import killercreepr.crux.api.text.context.InputContext;
 import killercreepr.crux.api.text.tags.container.MergedTagContainer;
+import killercreepr.crux.api.text.tags.container.TagContainer;
 import killercreepr.crux.core.Crux;
+import killercreepr.crux.core.text.resolver.Tag;
 import killercreepr.crux.core.util.CruxEntityUtil;
 import killercreepr.crux.core.util.CruxMath;
 import killercreepr.crux.core.util.CruxString;
@@ -20,6 +23,7 @@ import killercreepr.cruxenchantsoverhaul.enchanting.Enchanter;
 import killercreepr.cruxenchantsoverhaul.item.EItems;
 import killercreepr.cruxenchantsoverhaul.registries.EnchantsRegistries;
 import killercreepr.cruxmenus.api.menu.container.MenuContainer;
+import killercreepr.cruxmenus.api.menu.contex.SlotContext;
 import killercreepr.cruxmenus.api.menu.holder.MenuHolder;
 import killercreepr.cruxmenus.api.menu.slot.Slot;
 import killercreepr.cruxmenus.api.menu.slot.TempSlotted;
@@ -88,7 +92,19 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
             @Override
             public boolean mayPlace(@NotNull HumanEntity p, @Nullable ItemStack item) {
                 if(CruxItem.isEmpty(item)) return true;
-                return !LAPIS.mayPlace(p, item);
+                return !LAPIS.mayPlace(p, item) && isEnchantable(item);
+            }
+
+            @Override
+            public void onChanged(@NotNull SlotContext ctx) {
+                super.onChanged(ctx);
+                if(!CruxItem.isEmpty(ctx.getNewItem()) && !ctx.getNewItem().isSimilar(ctx.getOldItem())){
+                    setSelectedEnchant(null);
+                    Crux.scheduler().runTask(() ->{
+                        changeView(false);
+                        update();
+                    });
+                }
             }
         };
         RESULT = new SimpleFixedSlot(this, getResultSlot()) {
@@ -255,6 +271,14 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         result.addUnsafeEnchantment(selectedEnchant.enchantment(), newLevel);
         Crux.handlers().item().update(result, getViewer());
         return result;
+    }
+
+    public boolean isEnchantable(ItemStack item){
+        for (EEnchant ench : EnchantsRegistries.EENCHANT) {
+            if (!ench.canEnchantItem(item)) continue;
+            return true;
+        }
+        return false;
     }
 
     public List<EEnchant> getAvailableEnchants(ItemStack item) {
@@ -556,11 +580,24 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
             }
             return;
         }
-        //todo
+
+        Entity e = getViewer();
+
+        InputContext ctx = InputContext.inputContext(TagContainer.string()
+            .hook(e)
+            .add(Tag.parsed("level", getNextEnchantLevel(selectedEnchant) + ""))
+            .add(Tag.parsed("max_level", getMaxEnchantLevel(e, selectedEnchant) + ""))
+        );
         EnchantRequirements requirements = new EnchantRequirements(this);
-        requirements.lapis = 1;
-        requirements.exp = 10;
-        requirements.requiredLevel = 2;
+        if(selectedEnchant.requiredLapis() != null){
+            requirements.lapis = selectedEnchant.requiredLapis().sample(ctx).intValue();
+        }
+        if(selectedEnchant.requiredLevel() != null){
+            requirements.requiredLevel = selectedEnchant.requiredLevel().sample(ctx).intValue();
+        }
+        if(selectedEnchant.requiredExp() != null){
+            requirements.exp = selectedEnchant.requiredExp().sample(ctx).intValue();
+        }
         requirements.ingredients = selectedIngredients;
         this.enchantRequirements = requirements;
 
