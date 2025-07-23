@@ -1,5 +1,7 @@
 package killercreepr.cruxenchantsoverhaul.core.enchant;
 
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
 import killercreepr.crux.api.item.dynamic.DynamicItem;
 import killercreepr.crux.api.text.context.TextParserContext;
 import killercreepr.crux.core.util.CruxString;
@@ -11,11 +13,17 @@ import killercreepr.cruxenchantsoverhaul.api.enchant.EEIngredientCalculator;
 import killercreepr.cruxenchantsoverhaul.api.enchant.EEnchant;
 import killercreepr.cruxenchantsoverhaul.registries.EnchantsRegistries;
 import net.kyori.adventure.key.Key;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 
 public class SimpleEEnchant extends SimpleCruxEnchant implements EEnchant {
     protected final DynamicItem icon;
     protected final EEIngredientCalculator ingredientCalculator;
+    protected Collection<Enchantment> conflictingEnchants;
     public SimpleEEnchant(Key key, String description, ApplicableItemGroup applicableItemGroup, DynamicItem icon, EEIngredientCalculator ingredientCalculator) {
         super(key, description, applicableItemGroup);
         this.icon = icon;
@@ -64,5 +72,18 @@ public class SimpleEEnchant extends SimpleCruxEnchant implements EEnchant {
     @Override
     public EEIngredientCalculator ingredientCalculator() {
         return ingredientCalculator;
+    }
+
+    @Override
+    public Collection<Enchantment> conflictingEnchants() {
+        if(conflictingEnchants != null) return conflictingEnchants;
+        conflictingEnchants = new HashSet<>();
+        Enchantment ench = enchantment();
+        for(Enchantment enchantment : RegistryAccess.registryAccess().getRegistry(RegistryKey.ENCHANTMENT)){
+            if(ench == enchantment) continue;
+            if(!ench.conflictsWith(enchantment)) continue;
+            conflictingEnchants.add(enchantment);
+        }
+        return conflictingEnchants;
     }
 }

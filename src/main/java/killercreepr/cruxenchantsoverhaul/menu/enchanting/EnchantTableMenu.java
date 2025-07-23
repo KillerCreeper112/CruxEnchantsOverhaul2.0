@@ -1,5 +1,6 @@
 package killercreepr.cruxenchantsoverhaul.menu.enchanting;
 
+import killercreepr.crux.api.communication.CreateSound;
 import killercreepr.crux.api.data.DataExchange;
 import killercreepr.crux.api.item.CruxItem;
 import killercreepr.crux.api.text.tags.container.MergedTagContainer;
@@ -12,21 +13,23 @@ import killercreepr.cruxcrafting.api.crafting.context.CruxIngredientContext;
 import killercreepr.cruxcrafting.api.crafting.ingredient.CruxRecipeIngredient;
 import killercreepr.cruxenchantsoverhaul.api.enchant.EEnchant;
 import killercreepr.cruxenchantsoverhaul.block.active.EnchantTableBlock;
+import killercreepr.cruxenchantsoverhaul.component.EnchantComponents;
 import killercreepr.cruxenchantsoverhaul.enchanting.EnchantData;
 import killercreepr.cruxenchantsoverhaul.enchanting.EnchantRequirements;
 import killercreepr.cruxenchantsoverhaul.enchanting.Enchanter;
 import killercreepr.cruxenchantsoverhaul.item.EItems;
 import killercreepr.cruxenchantsoverhaul.registries.EnchantsRegistries;
 import killercreepr.cruxmenus.api.menu.container.MenuContainer;
-import killercreepr.cruxmenus.api.menu.contex.SlotContext;
 import killercreepr.cruxmenus.api.menu.holder.MenuHolder;
 import killercreepr.cruxmenus.api.menu.slot.Slot;
 import killercreepr.cruxmenus.api.menu.slot.TempSlotted;
 import killercreepr.cruxmenus.core.menu.ConfigMenu;
 import killercreepr.cruxmenus.core.menu.slot.SimpleFixedSlot;
-import killercreepr.cruxmenus.core.menu.slot.SimpleSlot;
 import killercreepr.cruxmenus.core.menu.slot.SimpleTempStoredSlot;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
@@ -36,9 +39,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, TempSlotted {
     protected final MenuContainer container = MenuContainer.createNew();
@@ -110,8 +111,14 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
 
                 ItemStack result = item.clone();
                 INPUT.setItem(result, true);
-                setSelectedEnchant(selectedEnchant);
+                if(canUpgradeLevel(p, selectedEnchant, getCurrentEnchantLevel(selectedEnchant)) == CanUpgradeEnchant.YES){
+                    setSelectedEnchant(selectedEnchant);
+                }else setSelectedEnchant(null);
                 update();
+
+                CreateSound.sound(Sound.BLOCK_ENCHANTMENT_TABLE_USE,
+                    net.kyori.adventure.sound.Sound.Source.BLOCK, 0.4f, 1f)
+                    .playAt(block.getBlock().getLocation().toCenterLocation());
             }
         };
         LAPIS = new SimpleTempStoredSlot(this, getLapisSlot()) {
@@ -161,6 +168,17 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         //setGeneralInvClickAction((p,e) -> e.setCancelled(false));
 
         container.addOpenedMenu(this);
+    }
+
+    public CanUpgradeEnchant canUpgradeLevel(Entity e, EEnchant enchant, int level){
+        int maxLevel = getMaxEnchantLevel(e, enchant);
+        if(level >= maxLevel) return CanUpgradeEnchant.MAX_LEVEL;
+
+        if(hasConflictions(INPUT.getItem(), enchant)) return CanUpgradeEnchant.HAS_CONFLICTS;
+
+        //todo power
+
+        return CanUpgradeEnchant.YES;
     }
 
     public void removeCosts(Entity e, EnchantRequirements requirements){
@@ -225,6 +243,9 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
     public int getRequiredLapisSlot(){
         return holder.info().getOrThrow("required_lapis_slot", Number.class).intValue();
     }
+    public int getRequiredLevelSlot(){
+        return holder.info().getOrThrow("required_level_slot", Number.class).intValue();
+    }
 
     public ItemStack buildResult(ItemStack input){
         if(selectedEnchant == null) return null;
@@ -236,15 +257,49 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         return result;
     }
 
-    public List<EEnchant> getAvailableEnchants(ItemStack item){
+    public List<EEnchant> getAvailableEnchants(ItemStack item) {
+        List<EEnchant> list = new ArrayList<>();
+        for (EEnchant ench : EnchantsRegistries.EENCHANT) {
+            if (!ench.canEnchantItem(item)) continue;
+            list.add(ench);
+        }
+
+        Entity e = getViewer();
+        list.sort(Comparator
+            .comparing((EEnchant ench) -> getCombinedPriority(e, ench)) // Combined namespace + upgrade status
+            .thenComparing(ench -> ench.key().value())); // Alphabetical by key name
+        return list;
+    }
+
+    // 0 = best, 7 = worst
+    private int getCombinedPriority(Entity e, EEnchant ench) {
+        String namespace = ench.key().namespace();
+        CanUpgradeEnchant upgradeStatus = canUpgradeLevel(e, ench, getCurrentEnchantLevel(ench));
+
+        boolean isVanilla = namespace.equals("minecraft");
+
+        return switch (upgradeStatus) {
+            case YES -> isVanilla ? 0 : 1;
+            case NOT_ENOUGH_POWER -> isVanilla ? 2 : 3;
+            case MAX_LEVEL -> isVanilla ? 4 : 5;
+            case HAS_CONFLICTS -> isVanilla ? 6 : 7;
+        };
+    }
+
+    /*public List<EEnchant> getAvailableEnchants(ItemStack item){
         List<EEnchant> list = new ArrayList<>();
         for (EEnchant ench : EnchantsRegistries.EENCHANT) {
             if(!ench.canEnchantItem(item)) continue;
             list.add(ench);
         }
-        list.sort(Comparator.comparing(e -> e.key().value()));
+
+        Entity e = getViewer();
+        list.sort(Comparator.comparing(enchat ->{
+            int currentLevel = getCurrentEnchantLevel(enchat);
+            return enchat.key().value() && canUpgradeLevel(e, enchat, currentLevel);
+        }));
         return list;
-    }
+    }*/
 
     public CruxItem buildEnchantItem(EEnchant enchant){
         int level = getNextEnchantLevel(enchant);
@@ -252,8 +307,6 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         if(level > 1 || getMaxEnchantLevel(enchant) > 1){
             name += " " + CruxMath.numeral(level);
         }
-
-
         return CruxItem.wrap(enchant.getIcon())
             .customName("<!i><yellow>" + name)
             .editThis(crux ->{
@@ -261,6 +314,76 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
                     ""
                 );
             });
+    }
+
+    public boolean hasConflictions(ItemStack input, EEnchant enchant){
+        if(INPUT.isBlank(input)) return false;
+        Enchantment vanilla = enchant.enchantment();
+        for(Enchantment ench : input.getEnchantments().keySet()){
+            if(ench == vanilla) continue;
+            if(!vanilla.conflictsWith(ench)) continue;
+            return true;
+        }
+        return false;
+    }
+
+    public Collection<Enchantment> getConflictions(ItemStack input, EEnchant enchant){
+        Collection<Enchantment> list = new HashSet<>();
+        Enchantment vanilla = enchant.enchantment();
+        for(Enchantment ench : input.getEnchantments().keySet()){
+            if(ench == vanilla) continue;
+            if(!vanilla.conflictsWith(ench)) continue;
+            list.add(ench);
+        }
+        return list;
+    }
+
+    /*public boolean applyConflictingEnchantsList(CruxItem item, EEnchant enchant){
+        Collection<Enchantment> list = enchant.conflictingEnchants();
+        if(list.isEmpty()) return false;
+        item.addLoreFromString("<gray>Conflicting Enchants:");
+        list.forEach(ench ->{
+            String name;
+            EEnchant eEnchant = EnchantsRegistries.EENCHANT.get(ench.key());
+            if(eEnchant == null){
+                name = PlainTextComponentSerializer.plainText().serialize(ench.description());
+            }else name = eEnchant.displayName();
+            item.addLoreFromString("<gray>");
+        });
+        return true;
+    }*/
+
+    public CruxItem buildEnchantItemSelection(EEnchant enchant){
+        CruxItem crux = buildEnchantItem(enchant);
+
+        var canUpgrade = canUpgradeLevel(getViewer(), enchant, getCurrentEnchantLevel(enchant));
+        switch (canUpgrade){
+            case YES -> {
+                crux.addLoreFromString("<yellow><latinfont:Click to select>");
+            }
+            case MAX_LEVEL -> {
+                crux.addLoreFromString("<red><latinfont:Max Level>");
+            }
+            case NOT_ENOUGH_POWER -> {
+                crux.addLoreFromString(
+                    "<red><latinfont:Not enough power>",
+                    "<gray>(Requires more bookshelves",
+                    "<gray>to be placed around)"
+                );
+            }
+            case HAS_CONFLICTS -> {
+                crux.addLoreFromString("<red><latinfont:Conflicts With>");
+                getConflictions(INPUT.getItem(), enchant).forEach(conflict ->{
+                    String name;
+                    EEnchant eEnchant = EnchantsRegistries.EENCHANT.get(conflict.key());
+                    if(eEnchant == null){
+                        name = PlainTextComponentSerializer.plainText().serialize(conflict.description());
+                    }else name = eEnchant.displayName();
+                    crux.addLoreFromString("<gray><latinfont:" + name + ">");
+                });
+            }
+        }
+        return crux;
     }
 
     public Entity getViewer(){
@@ -274,8 +397,27 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         return level + 1;
     }
 
+    public int getCurrentEnchantLevel(EEnchant enchant){
+        ItemStack input = INPUT.getItem();
+        if(input == null) return 0;
+        return input.getEnchantmentLevel(enchant.enchantment());
+    }
+
     public int getMaxEnchantLevel(EEnchant enchant){
-        return enchant.maxLevel();
+        return getMaxEnchantLevel(getViewer(), enchant);
+    }
+
+    public int getMaxEnchantLevel(Entity e, EEnchant enchant){
+        int level = enchant.maxLevel();
+
+        ItemStack input = INPUT.getItem();
+        if(!CruxItem.isEmpty(input)){
+            CruxItem crux = CruxItem.wrap(input);
+            Integer addition = crux.getOrDefaultData(EnchantComponents.ENCHANTS_MAX_LEVEL_ADDON);
+            if(addition != null) level += addition;
+        }
+
+        return level;
     }
 
     public void setSelectedEnchant(EEnchant selectedEnchant) {
@@ -381,13 +523,14 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
             }
             EEnchant eEnchant = currentEnchantList.get(index);
             setItem(slot,
-                buildEnchantItem(eEnchant)
-                    .addLoreFromString("<yellow><latinfont:Click to select>")
+                buildEnchantItemSelection(eEnchant)
                     .item(),
                 new SimpleFixedSlot(this, slot){
                 @Override
                 public void onClick(@NotNull HumanEntity p, @NotNull InventoryClickEvent event) {
                     super.onClick(p, event);
+                    if(canUpgradeLevel(p, eEnchant, getCurrentEnchantLevel(eEnchant)) != CanUpgradeEnchant.YES) return;
+
                     setSelectedEnchant(eEnchant);
                     update();
                     CLICK.playFor(p);
@@ -404,6 +547,7 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
             if(selectedView){
                 setItem(getRequiredXPSlot(), null, true);
                 setItem(getRequiredLapisSlot(), null, true);
+                setItem(getRequiredLevelSlot(), null, true);
             }
             return;
         }
@@ -414,6 +558,7 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         this.enchantRequirements = requirements;
 
 
+        setItem(getRequiredLevelSlot(), buildRequiredLevelItem(requirements), true);
         setItem(getRequiredXPSlot(), buildRequiredXPItem(requirements), true);
         setItem(getRequiredLapisSlot(), buildRequiredLapisItem(requirements), true);
     }
@@ -427,6 +572,20 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
                 "<green>" + CruxMath.format(requirements.exp)
             )
             .amount(Math.min(requirements.exp, 99))
+            .editMeta(meta ->{
+                meta.setMaxStackSize(99);
+            })
+            .item();
+    }
+
+    public ItemStack buildRequiredLevelItem(EnchantRequirements requirements){
+        if(requirements.requiredLevel < 1) return null;
+        return CruxItem.create(Material.EXPERIENCE_BOTTLE)
+            .itemName("<white>Required Level")
+            .addLoreFromString(
+                "<yellow>" + CruxMath.format(requirements.requiredLevel)
+            )
+            .amount(Math.min(requirements.requiredLevel, 99))
             .item();
     }
 
@@ -466,6 +625,13 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         return 0;
     }
 
+    public int getLevel(Entity e){
+        if(e instanceof Player p){
+            return p.getLevel();
+        }
+        return 0;
+    }
+
     public int getLapisAmount(){
         ItemStack lapis = LAPIS.getItem();
         return LAPIS.isBlank(lapis) ? 0 : lapis.getAmount();
@@ -487,6 +653,10 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
                     case NOT_ENOUGH_EXPERIENCE_POINTS -> {
                         amount = getExperiencePoints(getViewer());
                         maxAmount = requirements.exp;
+                    }
+                    case NOT_REQUIRED_LEVEL -> {
+                        amount = getLevel(getViewer());
+                        maxAmount = requirements.requiredLevel;
                     }
                     default -> {
                         return;
@@ -529,5 +699,12 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
     @Override
     public boolean giveItemUponClose() {
         return !container.isOpening();
+    }
+
+    public enum CanUpgradeEnchant{
+        YES,
+        NOT_ENOUGH_POWER,
+        MAX_LEVEL,
+        HAS_CONFLICTS
     }
 }

@@ -16,6 +16,7 @@ public class EnchantRequirements {
     public List<CruxRecipeIngredient> ingredients;
     public int exp;
     public int lapis;
+    public int requiredLevel;
 
     public EnchantRequirements(EnchantTableMenu menu) {
         this.menu = menu;
@@ -37,6 +38,7 @@ public class EnchantRequirements {
     }
 
     public RequirementResult hasRequirements(Entity e){
+        if(!hasRequiredLevel(e, requiredLevel)) return RequirementResult.NOT_REQUIRED_LEVEL;
         if(!hasExperience(e, exp)) return RequirementResult.NOT_ENOUGH_EXPERIENCE_POINTS;
         if(!hasLapis(e, lapis)) return RequirementResult.NOT_ENOUGH_LAPIS_LAZULI;
         if(ingredients != null && !hasIngredients(ingredients)) return RequirementResult.NOT_ENOUGH_INGREDIENTS;
@@ -52,6 +54,13 @@ public class EnchantRequirements {
     public boolean hasExperience(Entity e, int exp){
         if(e instanceof Player p){
             return p.calculateTotalExperiencePoints() >= exp;
+        }
+        return true;
+    }
+
+    public boolean hasRequiredLevel(Entity e, int level){
+        if(e instanceof Player p){
+            return p.getLevel() >= level;
         }
         return true;
     }
@@ -88,6 +97,7 @@ public class EnchantRequirements {
         NOT_ENOUGH_EXPERIENCE_POINTS,
         NOT_ENOUGH_LAPIS_LAZULI,
         NOT_ENOUGH_INGREDIENTS,
+        NOT_REQUIRED_LEVEL,
         SUCCESS
     }
 }

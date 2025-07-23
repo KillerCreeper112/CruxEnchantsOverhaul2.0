@@ -2,12 +2,12 @@ package killercreepr.cruxenchantsoverhaul.api.enchant;
 
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
-import killercreepr.cruxcrafting.api.crafting.ingredient.CruxRecipeIngredient;
 import killercreepr.cruxenchants.api.enchant.CruxEnchant;
 import killercreepr.cruxenchantsoverhaul.CruxEnchantsOverhaul;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Collection;
 import java.util.Map;
 
 public interface EEnchant extends CruxEnchant {
@@ -16,6 +16,8 @@ public interface EEnchant extends CruxEnchant {
     boolean conflictsWith(EEnchant enchant);
 
     EEIngredientCalculator ingredientCalculator();
+
+    Collection<Enchantment> conflictingEnchants();
 
     default Enchantment enchantment(){
         return RegistryAccess.registryAccess().getRegistry(RegistryKey.ENCHANTMENT).get(key());
