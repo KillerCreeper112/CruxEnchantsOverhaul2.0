@@ -403,7 +403,7 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
                 crux.addLoreFromString(
                     "<red><latinfont:Not enough power>",
                     "<gray>(Requires more bookshelves",
-                    "<gray>to be placed around)"
+                    "<gray>to be placed around enchanting table)"
                 );
             }
             case HAS_CONFLICTS -> {
@@ -633,7 +633,7 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
             .itemModel(Crux.key("gui/exp_orb"))
             .itemName("<white>Experience Points Cost")
             .addLoreFromString(
-                "<green>" + CruxMath.format(requirements.exp)
+                requirementText(getExperiencePoints(getViewer()), requirements.exp)
             )
             .amount(Math.min(requirements.exp, 99))
             .editMeta(meta ->{
@@ -642,12 +642,17 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
             .item();
     }
 
+    public String requirementText(int value, int max){
+        String color = value >= max ? "<green>" : "<red>";
+        return color + CruxMath.format(value) + " / " + CruxMath.format(max);
+    }
+
     public ItemStack buildRequiredLevelItem(EnchantRequirements requirements){
         if(requirements.requiredLevel < 1) return null;
         return CruxItem.create(Material.EXPERIENCE_BOTTLE)
             .itemName("<white>Required Level")
             .addLoreFromString(
-                "<yellow>" + CruxMath.format(requirements.requiredLevel)
+                requirementText(getLevel(getViewer()), requirements.requiredLevel)
             )
             .amount(Math.min(requirements.requiredLevel, 99))
             .item();
@@ -658,7 +663,7 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         return CruxItem.create(Material.LAPIS_LAZULI)
             .itemName("<white>Lapis Lazuli Cost")
             .addLoreFromString(
-                "<blue>" + CruxMath.format(requirements.lapis)
+                requirementText(getLapisAmount(), requirements.lapis)
             )
             .amount(Math.min(requirements.lapis, 99))
             .item();
