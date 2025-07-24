@@ -245,6 +245,7 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
 
 
     public boolean isApplicableEnchant(Entity e, ItemStack item, EEnchant enchant, int level){
+        if(!enchant.canEnchantItem(item)) return false;
         return getCurrentEnchantLevel(item, enchant) < getMaxEnchantLevel(e, item, enchant);
     }
 
@@ -345,6 +346,10 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         if(CruxEntityUtil.isNonSurvival(e)) return CanUpgradeEnchant.YES;
         int maxLevel = getMaxEnchantLevel(e,item, enchant);
         if(level >= maxLevel) return CanUpgradeEnchant.MAX_LEVEL;
+
+        var handler = CruxEnchantsOverhaul.inst().getMagicCapacityHandler();
+        EEItem eeItem = new EEItem(item);
+        if(eeItem.wouldExceedMagicCapacity(handler.getMagicUsage(enchant.enchantment(), level+1))) return CanUpgradeEnchant.WOULD_EXCEED_ENCHANTING_CAPACITY;
 
         if(!hasEnoughPowerFor(item,enchant, level+1)) return CanUpgradeEnchant.NOT_ENOUGH_POWER;
 
@@ -479,6 +484,7 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
             case NOT_ENOUGH_POWER -> isVanilla ? 2 : 3;
             case MAX_LEVEL -> isVanilla ? 4 : 5;
             case HAS_CONFLICTS -> isVanilla ? 6 : 7;
+            case WOULD_EXCEED_ENCHANTING_CAPACITY -> isVanilla ? 8 : 9;
         };
     }
 
@@ -622,6 +628,9 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
                     }else name = eEnchant.displayName();
                     crux.addLoreFromString("<gray><latinfont:" + name + ">");
                 });
+            }
+            case WOULD_EXCEED_ENCHANTING_CAPACITY -> {
+                crux.addLoreFromString("<red><latinfont:Would exceed enchanting capacity>");
             }
         }
         return crux;
@@ -1041,6 +1050,7 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         YES,
         NOT_ENOUGH_POWER,
         MAX_LEVEL,
-        HAS_CONFLICTS
+        HAS_CONFLICTS,
+        WOULD_EXCEED_ENCHANTING_CAPACITY,
     }
 }
