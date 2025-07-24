@@ -700,8 +700,16 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         }
         if(selectedView == this.selectedView) return false;
         if(selectedView){
+            String id;
+            if(bookEnchants != null && bookEnchants.isEmpty()){
+                id = "select_invalid_title";
+            }else if(enchantRequirements != null && (enchantRequirements.ingredients == null || enchantRequirements.ingredients.isEmpty())){
+                id = "select_no_ingredients_title";
+            }else{
+                id = "select_title";
+            }
             reconstruct(buildSize(), holder.getRegistry().getFormat()
-                    .deserialize(holder.info().getOrThrow("select_title", String.class)),
+                    .deserialize(holder.info().getOrThrow(id, String.class)),
                 true, true);
             this.selectedView = true;
         }else{
@@ -936,7 +944,13 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
             putSlot(slot, null);
             setItem(slot, null, true);
         }
-        changeView(true);
+        Crux.scheduler().runTask(() ->{
+            changeView(true);
+        });
+
+        if(bookEnchants.isEmpty()){
+            return;
+        }
 
         int selectIconSlot = getSelectIconSlot();
         setItem(selectIconSlot,
@@ -1023,6 +1037,22 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         if(enchantRequirements == null || INPUT.isBlank(input)){
             return null;
         }
+        if(bookEnchants != null && bookEnchants.isEmpty()){
+            return CruxItem.create(Material.BARRIER)
+                .customName("<red>No Valid Enchants")
+                .addLoreFromString(
+                    CruxString.buildDescription(
+                        "No enchantments could validly be applied to this item",
+                        CruxString.DEFAULT_DESCRIPTION_MAX_LENGTH,
+                        e -> "<gray>" + e
+                    )
+                )
+                .editThis(crux ->{
+                    CruxTag.set(crux.item(), "menu_fixed", PersistentDataType.BOOLEAN, true);
+                })
+                .item();
+        }
+
         Entity e = getViewer();
         EnchantRequirements.RequirementResult result = enchantRequirements.hasRequirements(e);
         if(result != EnchantRequirements.RequirementResult.SUCCESS){
@@ -1032,7 +1062,7 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
     }
 
     public void updateResult(){
-        if(!selectedView) return;
+        if(!selectedView && bookEnchants == null) return;
         RESULT.setItem(buildResult(), true);
     }
 
