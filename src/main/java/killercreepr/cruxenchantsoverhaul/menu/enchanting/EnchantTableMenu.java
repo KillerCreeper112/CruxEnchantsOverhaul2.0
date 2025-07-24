@@ -1039,7 +1039,7 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         }
         if(bookEnchants != null && bookEnchants.isEmpty()){
             return CruxItem.create(Material.BARRIER)
-                .customName("<red>No Valid Enchants")
+                .customName("<!i><red>No Valid Enchants")
                 .addLoreFromString(
                     CruxString.buildDescription(
                         "No enchantments could validly be applied to this item",
