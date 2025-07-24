@@ -656,8 +656,8 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         return CruxItem.create(Material.EXPERIENCE_BOTTLE)
             .itemName("<white>Required Level")
             .addLoreFromString(
-                requirementText(getLevel(getViewer()), requirements.requiredLevel),
-                "<gray>Power: " + requirementText(block.getPower(), requirements.requiredPower)
+                requirementText(getLevel(getViewer()), requirements.requiredLevel)
+                //"<gray>Power: " + requirementText(block.getPower(), requirements.requiredPower)
             )
             .amount(Math.min(requirements.requiredLevel, 99))
             .item();
