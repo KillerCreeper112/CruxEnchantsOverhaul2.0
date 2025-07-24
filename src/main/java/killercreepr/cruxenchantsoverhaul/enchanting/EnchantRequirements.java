@@ -1,6 +1,7 @@
 package killercreepr.cruxenchantsoverhaul.enchanting;
 
 import killercreepr.crux.api.item.CruxItem;
+import killercreepr.crux.core.util.CruxEntityUtil;
 import killercreepr.cruxcrafting.api.crafting.context.CruxIngredientContext;
 import killercreepr.cruxcrafting.api.crafting.ingredient.CruxRecipeIngredient;
 import killercreepr.cruxenchantsoverhaul.menu.enchanting.EnchantTableMenu;
@@ -39,6 +40,7 @@ public class EnchantRequirements {
     }
 
     public RequirementResult hasRequirements(Entity e){
+        if(CruxEntityUtil.isNonSurvival(e)) return RequirementResult.SUCCESS;
         if(!hasPower(e, requiredPower)) return RequirementResult.NOT_ENOUGH_POWER;
         if(!hasRequiredLevel(e, requiredLevel)) return RequirementResult.NOT_REQUIRED_LEVEL;
         if(!hasExperience(e, exp)) return RequirementResult.NOT_ENOUGH_EXPERIENCE_POINTS;

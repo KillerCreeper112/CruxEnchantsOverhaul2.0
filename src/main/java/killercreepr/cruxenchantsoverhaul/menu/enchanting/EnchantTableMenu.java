@@ -187,6 +187,7 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
     }
 
     public CanUpgradeEnchant canUpgradeLevel(Entity e, EEnchant enchant, int level){
+        if(CruxEntityUtil.isNonSurvival(e)) return CanUpgradeEnchant.YES;
         int maxLevel = getMaxEnchantLevel(e, enchant);
         if(level >= maxLevel) return CanUpgradeEnchant.MAX_LEVEL;
 
