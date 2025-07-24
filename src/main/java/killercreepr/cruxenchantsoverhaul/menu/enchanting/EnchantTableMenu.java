@@ -42,6 +42,7 @@ import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -154,7 +155,11 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         LAPIS = new SimpleTempStoredSlot(this, getLapisSlot()) {
             @Override
             public boolean mayPlace(@NotNull HumanEntity p, @Nullable ItemStack item) {
-                return item==null || Crux.handlers().item().getType(item).equals(Material.LAPIS_LAZULI.key());
+                if(CruxItem.isEmpty(item)) return true;
+
+                if(isLapisEnchantedBook())
+
+                return Crux.handlers().item().getType(item).equals(Material.LAPIS_LAZULI.key());
             }
             @Override
             public @NotNull ItemStack getSlottedItemReplacement() {
@@ -198,6 +203,31 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         //setGeneralInvClickAction((p,e) -> e.setCancelled(false));
 
         container.addOpenedMenu(this);
+    }
+
+    public boolean isApplicableEnchant(ItemStack item, EEnchant enchant, int level){
+        EnchantRequirements requirements = buildEnchantRequirements(item, enchant, level);
+
+    }
+
+    public Map<EEnchant, Integer> filterApplicableEnchants(ItemStack item, Map<Enchantment, Integer> map){
+        getAvailableEnchants()
+    }
+
+    public Map<Enchantment, Integer> getEnchantedBookEnchants(ItemStack item){
+        if(item.getItemMeta() instanceof EnchantmentStorageMeta meta){
+            return meta.getStoredEnchants();
+        }
+        return Map.of();
+    }
+
+    public boolean isEnchantedBook(ItemStack item){
+        if(CruxItem.isEmpty(item)) return false;
+        return item.getItemMeta() instanceof EnchantmentStorageMeta;
+    }
+
+    public boolean isLapisEnchantedBook(){
+        return isEnchantedBook(LAPIS.getItem());
     }
 
     public CanUpgradeEnchant canUpgradeLevel(Entity e, EEnchant enchant, int level){
@@ -299,6 +329,7 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
     public List<EEnchant> getAvailableEnchants(ItemStack item) {
         List<EEnchant> list = new ArrayList<>();
         for (EEnchant ench : EnchantsRegistries.EENCHANT) {
+            if(!ench.isDiscoverable()) continue;
             if (!ench.canEnchantItem(item)) continue;
 
             int level = getNextEnchantLevel(item, ench);
@@ -460,10 +491,13 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
     }
 
     public int getMaxEnchantLevel(Entity e, EEnchant enchant){
+        return getMaxEnchantLevel(e, INPUT.getItem(), enchant);
+    }
+
+    public int getMaxEnchantLevel(Entity e, ItemStack input, EEnchant enchant){
         int level = enchant.maxLevel();
 
-        ItemStack input = INPUT.getItem();
-        if(!CruxItem.isEmpty(input)){
+        if(!INPUT.isBlank(input)){
             CruxItem crux = CruxItem.wrap(input);
             Integer addition = crux.getOrDefaultData(EnchantComponents.ENCHANTS_MAX_LEVEL_ADDON);
             if(addition != null) level += addition;
@@ -592,7 +626,7 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         }
     }
 
-    public InputContext buildInputContext(EEnchant selectedEnchant, int level){
+    public InputContext buildInputContext(ItemStack input, EEnchant selectedEnchant, int level){
         Entity e = getViewer();
         return InputContext.inputContext(TagContainer.string()
             .hook(e)
@@ -600,14 +634,33 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
             .add(Tag.parsed("power", block.getPower() + ""))
             .add(Tag.parsed("quality", selectedEnchant.quality() + ""))
             .add(Tag.parsed("level_zero", Math.max(level-1, 0) + ""))
-            .add(Tag.parsed("max_level", getMaxEnchantLevel(e, selectedEnchant) + ""))
+            .add(Tag.parsed("max_level", getMaxEnchantLevel(e, input, selectedEnchant) + ""))
         );
     }
 
     public boolean hasEnoughPowerFor(ItemStack item, EEnchant enchant, int level){
         if(enchant.requiredPower() == null) return true;
-        int needed = enchant.requiredPower().sample(buildInputContext(enchant, level)).intValue();
+        int needed = enchant.requiredPower().sample(buildInputContext(item, enchant, level)).intValue();
         return block.getPower() >= needed;
+    }
+
+    public EnchantRequirements buildEnchantRequirements(ItemStack input, EEnchant selectedEnchant, int level){
+        InputContext ctx = buildInputContext(input, selectedEnchant, level);
+        EnchantRequirements requirements = new EnchantRequirements(this);
+        if(selectedEnchant.requiredLapis() != null){
+            requirements.lapis = selectedEnchant.requiredLapis().sample(ctx).intValue();
+        }
+        if(selectedEnchant.requiredLevel() != null){
+            requirements.requiredLevel = selectedEnchant.requiredLevel().sample(ctx).intValue();
+        }
+        if(selectedEnchant.requiredExp() != null){
+            requirements.exp = selectedEnchant.requiredExp().sample(ctx).intValue();
+        }
+        if(selectedEnchant.requiredPower() != null){
+            requirements.requiredPower = selectedEnchant.requiredPower().sample(ctx).intValue();
+        }
+        requirements.ingredients = selectedIngredients;
+        return requirements;
     }
 
     public void updateRequirements(){
@@ -623,27 +676,11 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
             return;
         }
 
-        InputContext ctx = buildInputContext(selectedEnchant, getNextEnchantLevel(selectedEnchant));
-        EnchantRequirements requirements = new EnchantRequirements(this);
-        if(selectedEnchant.requiredLapis() != null){
-            requirements.lapis = selectedEnchant.requiredLapis().sample(ctx).intValue();
-        }
-        if(selectedEnchant.requiredLevel() != null){
-            requirements.requiredLevel = selectedEnchant.requiredLevel().sample(ctx).intValue();
-        }
-        if(selectedEnchant.requiredExp() != null){
-            requirements.exp = selectedEnchant.requiredExp().sample(ctx).intValue();
-        }
-        if(selectedEnchant.requiredPower() != null){
-            requirements.requiredPower = selectedEnchant.requiredPower().sample(ctx).intValue();
-        }
-        requirements.ingredients = selectedIngredients;
-        this.enchantRequirements = requirements;
+        this.enchantRequirements = buildEnchantRequirements(input, selectedEnchant, getNextEnchantLevel(selectedEnchant));
 
-
-        setItem(getRequiredLevelSlot(), buildRequiredLevelItem(requirements), true);
-        setItem(getRequiredXPSlot(), buildRequiredXPItem(requirements), true);
-        setItem(getRequiredLapisSlot(), buildRequiredLapisItem(requirements), true);
+        setItem(getRequiredLevelSlot(), buildRequiredLevelItem(enchantRequirements), true);
+        setItem(getRequiredXPSlot(), buildRequiredXPItem(enchantRequirements), true);
+        setItem(getRequiredLapisSlot(), buildRequiredLapisItem(enchantRequirements), true);
     }
 
     public ItemStack buildRequiredXPItem(EnchantRequirements requirements){

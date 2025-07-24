@@ -16,6 +16,7 @@ public interface EEnchant extends CruxEnchant {
     ItemStack getIcon();
     boolean canEnchantItem(ItemStack item);
     boolean conflictsWith(EEnchant enchant);
+    boolean isDiscoverable();
 
     NumberProvider requiredPower();
     NumberProvider requiredLevel();

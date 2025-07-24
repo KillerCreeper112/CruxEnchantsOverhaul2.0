@@ -22,7 +22,7 @@ public class CustomObjectiveListener implements Listener {
     }
 
     private AdvancementHolder holder(@NotNull Entity p){
-        return EntityMemory.getDataHolder(p, AdvancementHolder.class);
+        return AdvancementHolder.holderIfLoaded(p);
     }
 
 }

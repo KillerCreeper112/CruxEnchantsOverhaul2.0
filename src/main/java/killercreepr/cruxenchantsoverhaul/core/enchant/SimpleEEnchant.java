@@ -28,7 +28,8 @@ public class SimpleEEnchant extends SimpleCruxEnchant implements EEnchant {
     protected final NumberProvider requiredExp;
     protected final NumberProvider requiredLapis;
     protected final double quality;
-    public SimpleEEnchant(Key key, String description, ApplicableItemGroup applicableItemGroup, DynamicItem icon, EEIngredientCalculator ingredientCalculator, NumberProvider requiredPower, NumberProvider requiredLevel, NumberProvider requiredExp, NumberProvider requiredLapis, double quality) {
+    protected final boolean discoverable;
+    public SimpleEEnchant(Key key, String description, ApplicableItemGroup applicableItemGroup, DynamicItem icon, EEIngredientCalculator ingredientCalculator, NumberProvider requiredPower, NumberProvider requiredLevel, NumberProvider requiredExp, NumberProvider requiredLapis, double quality, boolean discoverable) {
         super(key, description, applicableItemGroup);
         this.icon = icon;
         this.ingredientCalculator = ingredientCalculator;
@@ -37,6 +38,7 @@ public class SimpleEEnchant extends SimpleCruxEnchant implements EEnchant {
         this.requiredExp = requiredExp;
         this.requiredLapis = requiredLapis;
         this.quality = quality;
+        this.discoverable = discoverable;
     }
 
     @Override
@@ -76,6 +78,11 @@ public class SimpleEEnchant extends SimpleCruxEnchant implements EEnchant {
     @Override
     public boolean conflictsWith(EEnchant enchant) {
         return enchantment().conflictsWith(enchant.enchantment());
+    }
+
+    @Override
+    public boolean isDiscoverable() {
+        return discoverable;
     }
 
     @Override
