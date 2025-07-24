@@ -4,12 +4,14 @@ import killercreepr.crux.api.item.CruxItem;
 import killercreepr.crux.core.util.CruxEntityUtil;
 import killercreepr.cruxcrafting.api.crafting.context.CruxIngredientContext;
 import killercreepr.cruxcrafting.api.crafting.ingredient.CruxRecipeIngredient;
+import killercreepr.cruxenchantsoverhaul.core.enchant.AmountEEIngredientCalculator;
 import killercreepr.cruxenchantsoverhaul.menu.enchanting.EnchantTableMenu;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class EnchantRequirements {
@@ -22,6 +24,23 @@ public class EnchantRequirements {
 
     public EnchantRequirements(EnchantTableMenu menu) {
         this.menu = menu;
+    }
+
+    public List<CruxRecipeIngredient> addIngredientAmount(List<CruxRecipeIngredient> add){
+        if(ingredients == null || add == null) return null;
+        List<CruxRecipeIngredient> list = new ArrayList<>();
+        int index = -1;
+        for (CruxRecipeIngredient current : ingredients) {
+            index++;
+            if(index >= add.size()) break;
+            CruxRecipeIngredient addon = add.get(index);
+            CruxRecipeIngredient newIngredient = AmountEEIngredientCalculator.editAmount(current, currentAmount ->{
+                return currentAmount + AmountEEIngredientCalculator.getAmount(addon);
+            });
+            list.add(newIngredient);
+        }
+        ingredients = list;
+        return list;
     }
 
     public void removeCosts(Entity e){

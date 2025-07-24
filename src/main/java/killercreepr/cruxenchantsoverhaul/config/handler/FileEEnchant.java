@@ -41,7 +41,8 @@ public class FileEEnchant implements FileObjectHandler<EEnchant> {
             equation("required_level", r, o, defaultRequiredLevel),
             equation("required_exp", r, o, defaultRequiredExp),
             equation("required_lapis", r, o, defaultRequiredLapis),
-            r.deserializeFromFileOrDefault(Double.class, o.get("quality"), 1D)
+            r.deserializeFromFileOrDefault(Double.class, o.get("quality"), 1D),
+            r.deserializeFromFileOrDefault(Boolean.class, o.get("discoverable"), true)
         );
     }
 

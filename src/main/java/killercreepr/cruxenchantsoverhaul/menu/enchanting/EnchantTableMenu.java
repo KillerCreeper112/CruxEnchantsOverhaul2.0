@@ -8,18 +8,17 @@ import killercreepr.crux.api.text.tags.container.MergedTagContainer;
 import killercreepr.crux.api.text.tags.container.TagContainer;
 import killercreepr.crux.core.Crux;
 import killercreepr.crux.core.text.resolver.Tag;
-import killercreepr.crux.core.util.CruxEntityUtil;
-import killercreepr.crux.core.util.CruxMath;
-import killercreepr.crux.core.util.CruxString;
-import killercreepr.crux.core.util.CruxTag;
+import killercreepr.crux.core.util.*;
 import killercreepr.cruxcrafting.api.crafting.context.CruxIngredientContext;
 import killercreepr.cruxcrafting.api.crafting.ingredient.CruxRecipeIngredient;
+import killercreepr.cruxenchantsoverhaul.CruxEnchantsOverhaul;
 import killercreepr.cruxenchantsoverhaul.api.enchant.EEnchant;
 import killercreepr.cruxenchantsoverhaul.block.active.EnchantTableBlock;
 import killercreepr.cruxenchantsoverhaul.component.EnchantComponents;
 import killercreepr.cruxenchantsoverhaul.enchanting.EnchantData;
 import killercreepr.cruxenchantsoverhaul.enchanting.EnchantRequirements;
 import killercreepr.cruxenchantsoverhaul.enchanting.Enchanter;
+import killercreepr.cruxenchantsoverhaul.item.EEItem;
 import killercreepr.cruxenchantsoverhaul.item.EItems;
 import killercreepr.cruxenchantsoverhaul.registries.EnchantsRegistries;
 import killercreepr.cruxmenus.api.menu.container.MenuContainer;
@@ -77,6 +76,9 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
     protected final @NotNull EnchantData enchantData;
     protected final @NotNull Enchanter enchanter;
     protected int page = 0;
+
+    protected Map<EEnchant, Integer> bookEnchants;
+
     public EnchantTableMenu(@NotNull MenuHolder holder, @NotNull DataExchange info) {
         this(holder, info, null);
     }
@@ -157,7 +159,9 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
             public boolean mayPlace(@NotNull HumanEntity p, @Nullable ItemStack item) {
                 if(CruxItem.isEmpty(item)) return true;
 
-                if(isLapisEnchantedBook())
+                if(isEnchantedBook(item)){
+                    return true;
+                }
 
                 return Crux.handlers().item().getType(item).equals(Material.LAPIS_LAZULI.key());
             }
@@ -205,13 +209,87 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         container.addOpenedMenu(this);
     }
 
-    public boolean isApplicableEnchant(ItemStack item, EEnchant enchant, int level){
+    public EnchantRequirements buildFullRequirements(ItemStack item, EEnchant enchant, int startLevel, int level){
         EnchantRequirements requirements = buildEnchantRequirements(item, enchant, level);
-
+        for(int i = startLevel; i <= level; i++){
+            EnchantRequirements add = buildEnchantRequirements(item, enchant, i);
+            requirements.exp += add.exp;
+            requirements.lapis += add.lapis;
+            requirements.addIngredientAmount(add.ingredients);
+        }
+        return requirements;
     }
 
-    public Map<EEnchant, Integer> filterApplicableEnchants(ItemStack item, Map<Enchantment, Integer> map){
-        getAvailableEnchants()
+    public EnchantRequirements buildEnchantRequirements(ItemStack item, Map<EEnchant, Integer> enchants) {
+        EnchantRequirements requirements = new EnchantRequirements(this);
+        if (enchants.isEmpty()) return requirements;
+
+        enchants.forEach((ench, level) -> {
+            int currentLevel = item.getEnchantmentLevel(ench.enchantment());
+            int levelDifference = level - currentLevel;
+
+            if (levelDifference < 0) return; // Skip if not an upgrade
+            if(levelDifference == 0){
+                currentLevel++;
+                level++;
+            }
+
+            // Build base requirements for the target level
+            EnchantRequirements require = buildFullRequirements(item, ench, currentLevel, level);
+            if(require.requiredLevel > requirements.requiredLevel){
+                requirements.requiredLevel = require.requiredLevel;
+            }
+            requirements.exp += require.exp;
+            requirements.lapis += require.lapis;
+        });
+
+        return requirements;
+    }
+
+
+    public boolean isApplicableEnchant(Entity e, ItemStack item, EEnchant enchant, int level){
+        return getCurrentEnchantLevel(item, enchant) >= getMaxEnchantLevel(e, item, enchant);
+    }
+
+    public void filterEnchantsByEnchantingCapacity(Entity e, ItemStack item, Map<EEnchant, Integer> enchants){
+        var magicCapacityHandler = CruxEnchantsOverhaul.inst().getMagicCapacityHandler();
+        Integer enchantCapacity = magicCapacityHandler.getMagicCapacity(item);
+        if(enchantCapacity == null) return;
+        EEItem eeItem = new EEItem(item);
+
+        int addedLevels = 0;
+        for(var entry : new HashSet<>(enchants.entrySet())){
+            int usage = magicCapacityHandler.getMagicUsage(entry.getKey().enchantment(), entry.getValue());
+            addedLevels += usage;
+
+            if(!eeItem.wouldExceedMagicCapacity(addedLevels)) continue;
+            enchants.remove(entry.getKey());
+            addedLevels -= usage;
+        }
+    }
+
+    public Map<EEnchant, Integer> filterApplicableEnchants(Entity e, ItemStack item, Map<Enchantment, Integer> map){
+        Map<EEnchant, Integer> newMap = new HashMap<>();
+        map.forEach((ench, level) ->{
+            if(item.getEnchantmentLevel(ench) > level) return;
+
+            EEnchant eEnchant = EnchantsRegistries.EENCHANT.get(ench.key());
+            if(eEnchant == null) return;
+            if(isApplicableEnchant(e, item, eEnchant, level)){
+                newMap.put(eEnchant, level);
+            }
+        });
+
+        newMap.keySet().removeIf(check ->{
+            for (EEnchant apply : newMap.keySet()) {
+                if(check.conflictsWith(apply)) return true;
+            }
+            for (Enchantment apply : item.getEnchantments().keySet()) {
+                if(check.enchantment().conflictsWith(apply)) return true;
+            }
+            return false;
+        });
+        return newMap;
     }
 
     public Map<Enchantment, Integer> getEnchantedBookEnchants(ItemStack item){
@@ -219,6 +297,37 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
             return meta.getStoredEnchants();
         }
         return Map.of();
+    }
+
+    public void updateBookEnchants(){
+        if(!isLapisEnchantedBook()){
+            bookEnchants = null;
+            return;
+        }
+        ItemStack input = INPUT.getItem();
+        if(INPUT.isBlank(input)){
+            bookEnchants = null;
+            return;
+        }
+        ItemStack lapis = LAPIS.getItem();
+        if(LAPIS.isBlank(lapis)){
+            bookEnchants = null;
+            return;
+        }
+        Map<Enchantment, Integer> storedEnchants = getEnchantedBookEnchants(lapis);
+        if(storedEnchants.isEmpty()){
+            bookEnchants = null;
+            return;
+        }
+        Entity e = getViewer();
+        Map<EEnchant, Integer> enchants = filterApplicableEnchants(e, input, storedEnchants);
+        filterEnchantsByEnchantingCapacity(e, input, enchants);
+        if(enchants.isEmpty()){
+            bookEnchants = null;
+            return;
+        }
+        bookEnchants = enchants;
+        changeView(true);
     }
 
     public boolean isEnchantedBook(ItemStack item){
@@ -231,13 +340,17 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
     }
 
     public CanUpgradeEnchant canUpgradeLevel(Entity e, EEnchant enchant, int level){
+        return canUpgradeLevel(e, INPUT.getItem(), enchant, level);
+    }
+
+    public CanUpgradeEnchant canUpgradeLevel(Entity e, ItemStack item, EEnchant enchant, int level){
         if(CruxEntityUtil.isNonSurvival(e)) return CanUpgradeEnchant.YES;
-        int maxLevel = getMaxEnchantLevel(e, enchant);
+        int maxLevel = getMaxEnchantLevel(e,item, enchant);
         if(level >= maxLevel) return CanUpgradeEnchant.MAX_LEVEL;
 
-        if(!hasEnoughPowerFor(INPUT.getItem(),enchant, level+1)) return CanUpgradeEnchant.NOT_ENOUGH_POWER;
+        if(!hasEnoughPowerFor(item,enchant, level+1)) return CanUpgradeEnchant.NOT_ENOUGH_POWER;
 
-        if(hasConflictions(INPUT.getItem(), enchant)) return CanUpgradeEnchant.HAS_CONFLICTS;
+        if(hasConflictions(item, enchant)) return CanUpgradeEnchant.HAS_CONFLICTS;
 
         return CanUpgradeEnchant.YES;
     }
@@ -481,7 +594,10 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
     }
 
     public int getCurrentEnchantLevel(EEnchant enchant){
-        ItemStack input = INPUT.getItem();
+        return getCurrentEnchantLevel(INPUT.getItem(), enchant);
+    }
+
+    public int getCurrentEnchantLevel(ItemStack input, EEnchant enchant){
         if(input == null) return 0;
         return input.getEnchantmentLevel(enchant.enchantment());
     }
@@ -550,6 +666,42 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
     }
 
     public void updateEnchantList(){
+        if(bookEnchants != null){
+            setSelectedEnchant(null);
+
+            for(Integer slot : getEnchantmentListSlots()){
+                putSlot(slot, null);
+                setItem(slot, null, true);
+            }
+
+            EEnchant eEnchant = CruxCollection.getFirst(bookEnchants.keySet());
+            int selectIconSlot = getSelectIconSlot();
+            setItem(selectIconSlot,
+                buildEnchantItem(eEnchant)
+                    .addLoreFromString("<yellow><latinfont:Click to unselect>")
+                    .item(),
+                new SimpleFixedSlot(this, selectIconSlot){
+                    @Override
+                    public void onClick(@NotNull HumanEntity p, @NotNull InventoryClickEvent event) {
+                        super.onClick(p, event);
+                        setSelectedEnchant(null);
+                        update();
+                        CLICK.playFor(p);
+                    }
+                }, true);
+
+            List<CruxRecipeIngredient> ingredients = enchantRequirements.ingredients;
+            if(ingredients != null){
+                int index = -1;
+                for(Integer slot : getSelectIngredientSlots()){
+                    index++;
+                    if(index >= ingredients.size()) break;
+                    CruxRecipeIngredient ingredient = ingredients.get(index);
+                    setItem(slot, ingredient.getItemDisplay().getFirst(), true);
+                }
+            }
+            return;
+        }
         if(currentEnchantList.isEmpty()){
             if(selectedEnchant != null){
                 setSelectedEnchant(null);
@@ -665,7 +817,7 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
 
     public void updateRequirements(){
         ItemStack input = INPUT.getItem();
-        if(CruxItem.isEmpty(input) || selectedEnchant == null){
+        if(CruxItem.isEmpty(input) || (bookEnchants== null && selectedEnchant == null)){
             enchantRequirements = null;
 
             if(selectedView){
@@ -673,6 +825,11 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
                 setItem(getRequiredLapisSlot(), null, true);
                 setItem(getRequiredLevelSlot(), null, true);
             }
+            return;
+        }
+
+        if(bookEnchants != null){
+            enchantRequirements = buildEnchantRequirements(input, bookEnchants);
             return;
         }
 
@@ -728,6 +885,7 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
 
     public void updateInputData(){
         currentEnchantList.clear();
+        if(bookEnchants != null) return;
         ItemStack input = INPUT.getItem();
         if(!CruxItem.isEmpty(input)){
             currentEnchantList.addAll(getAvailableEnchants(input));
@@ -735,6 +893,8 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
     }
 
     public void update(){
+        updateBookEnchants();
+
         updateInputData();
 
         updateEnchantList();

@@ -17,8 +17,43 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
 
 public class AmountEEIngredientCalculator implements EEIngredientCalculator {
+    public static int getAmount(CruxRecipeIngredient ingredient){
+        if((ingredient instanceof SimpleRecipeIngredient recipe)){
+            return recipe.getAmount();
+        }
+        if((ingredient instanceof SimpleWrappedKeyedRecipeIngredient recipe)){
+            return recipe.getAmount();
+        }
+        if((ingredient instanceof SimpleWrappedRecipeIngredient recipe)){
+            return recipe.getAmount();
+        }
+        return 0;
+    }
+
+    public static CruxRecipeIngredient editAmount(CruxRecipeIngredient ingredient, Function<Integer, Integer> amount){
+        if((ingredient instanceof SimpleWrappedKeyedRecipeIngredient recipe)){
+            return new SimpleWrappedKeyedRecipeIngredient(recipe.getIngredient(), amount.apply(recipe.getAmount()), recipe.key());
+        }
+        if((ingredient instanceof SimpleWrappedRecipeIngredient recipe)){
+            return new SimpleWrappedRecipeIngredient(recipe.getIngredient(), amount.apply(recipe.getAmount()));
+        }
+        if((ingredient instanceof SimpleRecipeIngredient recipe)){
+            List<ItemStack> newList = new ArrayList<>();
+            int x = amount.apply(recipe.getAmount());
+            recipe.getItemDisplays().forEach(item ->{
+                item = item.clone();
+                item.setAmount(x);
+                newList.add(item);
+            });
+            return new SimpleRecipeIngredient(recipe.getPredicate(), x, newList);
+        }
+        Crux.logWarning(ingredient + " not supported");
+        return ingredient;
+    }
+
     protected final Collection<CruxRecipeIngredient> ingredients;
     protected final NumberProvider amount;
 
@@ -35,28 +70,7 @@ public class AmountEEIngredientCalculator implements EEIngredientCalculator {
             .add(Tag.parsed("level", level+""))
             .add(Tag.parsed("quality", quality+"")))).intValue();
         for (CruxRecipeIngredient ingredient : ingredients) {
-            if((ingredient instanceof SimpleWrappedKeyedRecipeIngredient recipe)){
-                recipe = new SimpleWrappedKeyedRecipeIngredient(recipe.getIngredient(), amount, recipe.key());
-                list.add(recipe);
-                continue;
-            }
-            if((ingredient instanceof SimpleWrappedRecipeIngredient recipe)){
-                recipe = new SimpleWrappedRecipeIngredient(recipe.getIngredient(), amount);
-                list.add(recipe);
-                continue;
-            }
-            if((ingredient instanceof SimpleRecipeIngredient recipe)){
-                List<ItemStack> newList = new ArrayList<>();
-                recipe.getItemDisplays().forEach(item ->{
-                    item = item.clone();
-                    item.setAmount(amount);
-                    newList.add(item);
-                });
-                recipe = new SimpleRecipeIngredient(recipe.getPredicate(), amount, newList);
-                list.add(recipe);
-                continue;
-            }
-            Crux.logWarning(ingredient + " not supported");
+            list.add(editAmount(ingredient, x -> amount));
         }
         return list;
     }
