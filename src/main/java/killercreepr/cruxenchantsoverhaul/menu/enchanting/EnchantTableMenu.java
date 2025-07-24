@@ -32,7 +32,10 @@ import killercreepr.cruxmenus.core.menu.slot.SimpleFixedSlot;
 import killercreepr.cruxmenus.core.menu.slot.SimpleTempStoredSlot;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
+import org.bukkit.Statistic;
+import org.bukkit.advancement.Advancement;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
@@ -135,6 +138,17 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
                 CreateSound.sound(Sound.BLOCK_ENCHANTMENT_TABLE_USE,
                     net.kyori.adventure.sound.Sound.Source.BLOCK, 0.4f, 1f)
                     .playAt(block.getBlock().getLocation().toCenterLocation());
+
+                if(p instanceof Player player){
+                    player.incrementStatistic(Statistic.ITEM_ENCHANTED);
+                    Advancement advance = Crux.getServer().getAdvancement(NamespacedKey.fromString("minecraft:story/enchant_item"));
+                    if(advance != null){
+                        var prog = player.getAdvancementProgress(advance);
+                        if(prog != null && !prog.isDone()){
+                            prog.getRemainingCriteria().forEach(prog::awardCriteria);
+                        }
+                    }
+                }
             }
         };
         LAPIS = new SimpleTempStoredSlot(this, getLapisSlot()) {

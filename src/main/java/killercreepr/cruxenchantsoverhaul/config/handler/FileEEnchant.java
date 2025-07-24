@@ -2,7 +2,6 @@ package killercreepr.cruxenchantsoverhaul.config.handler;
 
 import killercreepr.crux.api.item.dynamic.DynamicItem;
 import killercreepr.crux.api.valueproviders.number.NumberProvider;
-import killercreepr.crux.core.valueproviders.number.ConstantNumber;
 import killercreepr.crux.core.valueproviders.number.EquationNumber;
 import killercreepr.cruxconfig.config.common.FileContext;
 import killercreepr.cruxconfig.config.common.FileRegistry;

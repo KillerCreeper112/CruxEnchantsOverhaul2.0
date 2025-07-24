@@ -2,27 +2,21 @@ package killercreepr.cruxenchantsoverhaul.tag;
 
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
-import killercreepr.crux.api.data.Holder;
 import killercreepr.crux.api.text.format.FormatPrefix;
 import killercreepr.crux.api.text.hook.ObjectTag;
 import killercreepr.crux.api.text.resolver.StringResolver;
 import killercreepr.crux.api.text.tags.TagParser;
 import killercreepr.crux.api.text.tags.container.TagContainer;
-import killercreepr.crux.core.text.container.StringListTagContainer;
 import killercreepr.crux.core.text.resolver.Tag;
 import killercreepr.crux.core.util.CruxString;
 import killercreepr.cruxenchants.api.enchant.CruxEnchant;
 import killercreepr.cruxenchants.core.registries.CruxEnchantRegistries;
 import killercreepr.cruxenchantsoverhaul.CruxEnchantsOverhaul;
-import killercreepr.cruxenchantsoverhaul.item.EEItem;
 import net.kyori.adventure.key.Key;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public class EnchDataTag implements ObjectTag<EnchDataTag.Data> {

@@ -1,6 +1,5 @@
 package killercreepr.cruxenchantsoverhaul.config.handler;
 
-import killercreepr.crux.api.component.parser.ComponentTextInputParser;
 import killercreepr.crux.api.component.parser.hybrid.PersistTextParser;
 import killercreepr.crux.api.item.predicate.ItemPredicate;
 import killercreepr.crux.api.valueproviders.number.NumberProvider;

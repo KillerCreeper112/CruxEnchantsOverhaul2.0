@@ -5,7 +5,6 @@ import killercreepr.cruxenchantsoverhaul.api.enchant.EEIngredientCalculator;
 import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collection;
 import java.util.List;
 
 public class SimpleEEIngredientCalculator implements EEIngredientCalculator {

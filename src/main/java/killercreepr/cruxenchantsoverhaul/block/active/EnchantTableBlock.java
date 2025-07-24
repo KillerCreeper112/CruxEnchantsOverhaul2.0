@@ -1,15 +1,12 @@
 package killercreepr.cruxenchantsoverhaul.block.active;
 
-import com.destroystokyo.paper.ParticleBuilder;
 import com.google.common.collect.AbstractIterator;
-import killercreepr.crux.api.communication.CreateSound;
 import killercreepr.crux.api.data.DataExchange;
 import killercreepr.crux.api.data.tick.ManagedTicked;
 import killercreepr.crux.api.item.CruxItem;
 import killercreepr.crux.api.math.Pos2D;
 import killercreepr.crux.core.Crux;
 import killercreepr.crux.core.math.BlockPos;
-import killercreepr.crux.core.util.CruxMath;
 import killercreepr.cruxblocks.api.block.CruxBlock;
 import killercreepr.cruxblocks.api.block.active.ActiveCruxInteractable;
 import killercreepr.cruxblocks.api.block.context.BlockContext;
@@ -22,9 +19,6 @@ import killercreepr.cruxenchantsoverhaul.enchanting.BlockGrid;
 import killercreepr.cruxenchantsoverhaul.enchanting.EnchantData;
 import killercreepr.cruxenchantsoverhaul.menu.enchanting.EnchantingMenu;
 import killercreepr.cruxmenus.core.registries.Menus;
-import org.bukkit.Location;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.ChiseledBookshelf;
 import org.bukkit.enchantments.Enchantment;
@@ -33,10 +27,8 @@ import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Stream;

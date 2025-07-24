@@ -11,7 +11,6 @@ import killercreepr.cruxadvancements.core.advancement.objective.ObjectiveCommonD
 import killercreepr.cruxadvancements.core.config.CruxAdvanceCfgData;
 import killercreepr.cruxadvancements.core.config.handler.FileAdvancementObjective;
 import killercreepr.cruxadvancements.core.config.handler.FileSimpleAdvanceObjective;
-import killercreepr.cruxconfig.config.bukkit.handler.BukkitCfgHandlers;
 import killercreepr.cruxconfig.config.common.FileContext;
 import killercreepr.cruxconfig.config.common.element.FileObject;
 import killercreepr.cruxconfig.config.registry.CfgRegistries;
