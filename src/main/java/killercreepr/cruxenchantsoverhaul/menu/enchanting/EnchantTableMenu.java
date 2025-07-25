@@ -261,6 +261,9 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
             if(require.requiredLevel > requirements.requiredLevel){
                 requirements.requiredLevel = require.requiredLevel;
             }
+            if(require.requiredPower > requirements.requiredPower){
+                requirements.requiredPower = require.requiredPower;
+            }
             requirements.exp += require.exp;
             requirements.lapis += require.lapis;
         });
@@ -540,6 +543,9 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         return CruxItem.wrap(enchant.getIcon())
             .customName("<!i><yellow>" + name)
             .editThis(crux ->{
+                if(enchantRequirements != null && CruxEntityUtil.isNonSurvival(getViewer())){
+                    crux.insertLoreFromString(0, "<white>Power: " + block.getPower() + " / " + enchantRequirements.requiredPower);
+                }
                 crux.insertLoreFromString(0,
                     "<white><latinfont:Enchant Usage>: <gold>" + (enchant.enchantUsage() * level),
                     ""
