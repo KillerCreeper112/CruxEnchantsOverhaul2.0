@@ -31,6 +31,7 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -255,7 +256,17 @@ public class EnchantTableBlock extends SimpleActiveCruxBlock implements ManagedT
                 return 1;
             }
             case ENCHANTED_BOOK -> {
-                return 2;
+                AtomicInteger power = new AtomicInteger(2);
+                if(item.getItemMeta() instanceof EnchantmentStorageMeta meta){
+                    meta.getStoredEnchants().forEach((ench, level) ->{
+                        int maxLevel = ench.getMaxLevel();
+                        float progress = (float) level / (float) maxLevel;
+
+                        int addon = Math.round(3f * progress);
+                        power.addAndGet(addon);
+                    });
+                }
+                return power.get();
             }
         }
         return 0;
