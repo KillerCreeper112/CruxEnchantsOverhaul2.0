@@ -9,12 +9,14 @@ import killercreepr.cruxcrafting.api.crafting.ingredient.CruxRecipeIngredient;
 import killercreepr.cruxenchantsoverhaul.api.enchant.EEIngredientCalculator;
 import killercreepr.cruxenchantsoverhaul.core.enchant.AllOfEEIngredientCalculator;
 import killercreepr.cruxenchantsoverhaul.core.enchant.AmountEEIngredientCalculator;
+import killercreepr.cruxenchantsoverhaul.core.enchant.LevelBasedEEIngredientCalculator;
 import killercreepr.cruxenchantsoverhaul.core.enchant.SimpleEEIngredientCalculator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public class FileEEIngredientCalculator implements FileObjectHandler<EEIngredientCalculator> {
     @Override
@@ -40,6 +42,15 @@ public class FileEEIngredientCalculator implements FileObjectHandler<EEIngredien
                     r.deserializeFromFile(
                         new TypeToken<Collection<EEIngredientCalculator>>(){}.getType(),
                         o.get("children")
+                    )
+                );
+            }
+            case "level_based" ->{
+                return new LevelBasedEEIngredientCalculator(
+                    r.deserializeFromFile(EEIngredientCalculator.class, o.get("default")),
+                    r.deserializeFromFile(
+                        new TypeToken<Map<Integer,EEIngredientCalculator>>(){}.getType(),
+                        o.get("levels")
                     )
                 );
             }

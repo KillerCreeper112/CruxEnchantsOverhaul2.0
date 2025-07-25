@@ -101,6 +101,21 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
             @Override
             public void onChanged(@NotNull SlotContext ctx) {
                 super.onChanged(ctx);
+                if(CruxItem.isEmpty(ctx.getNewItem()) || !ctx.getNewItem().isSimilar(ctx.getOldItem())){
+                    if(bookEnchants != null){
+                        ItemStack book = LAPIS.getItem();
+                        if(!CruxItem.isEmpty(book)){
+                            CruxEntityUtil.giveOrDrop(ctx.getWhoClicked(), book.clone());
+                            book.setAmount(0);
+                            Crux.scheduler().runTask(() ->{
+                                changeView(false);
+                                update();
+                            });
+                            return;
+                        }
+                    }
+                }
+
                 if(!CruxItem.isEmpty(ctx.getNewItem()) && !ctx.getNewItem().isSimilar(ctx.getOldItem())){
                     setSelectedEnchant(null);
                     Crux.scheduler().runTask(() ->{
@@ -119,7 +134,7 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
 
                 if(isBlank(item)) return;
                 if(CruxTag.has(item, "menu_fixed")) return;;
-                if(selectedEnchant == null) return;
+                if(selectedEnchant == null && bookEnchants == null) return;
                 if(enchantRequirements == null) return;
                 if(INPUT.isBlank(INPUT.getItem())) return;
 
@@ -130,9 +145,17 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
 
                 ItemStack result = item.clone();
                 INPUT.setItem(result, true);
-                if(canUpgradeLevel(p, selectedEnchant, getCurrentEnchantLevel(selectedEnchant)) == CanUpgradeEnchant.YES){
-                    setSelectedEnchant(selectedEnchant);
-                }else setSelectedEnchant(null);
+
+                if(selectedEnchant != null){
+                    if(canUpgradeLevel(p, selectedEnchant, getCurrentEnchantLevel(selectedEnchant)) == CanUpgradeEnchant.YES){
+                        setSelectedEnchant(selectedEnchant);
+                    }else setSelectedEnchant(null);
+                }else{
+                    if(isLapisEnchantedBook()){
+                        ItemStack lapis = LAPIS.getItem();
+                        lapis.setAmount(lapis.getAmount()-1);
+                    }
+                }
                 update();
 
                 CreateSound.sound(Sound.BLOCK_ENCHANTMENT_TABLE_USE,
@@ -157,6 +180,8 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
                 if(CruxItem.isEmpty(item)) return true;
 
                 if(isEnchantedBook(item)){
+                    ItemStack input = INPUT.getItem();
+                    if(INPUT.isBlank(input)) return false;
                     return true;
                 }
 
@@ -428,6 +453,8 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         if(bookEnchants != null){
             ItemStack result = input.clone();
             bookEnchants.forEach((eEnchant, level) ->{
+                int currentLevel = input.getEnchantmentLevel(eEnchant.enchantment());
+                if(currentLevel == level) level++;
                 result.addUnsafeEnchantment(eEnchant.enchantment(), level);
             });
             Crux.handlers().item().update(result, getViewer());

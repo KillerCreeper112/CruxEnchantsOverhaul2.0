@@ -61,7 +61,7 @@ public class SimpleCruxedAnvil implements CruxedAnvil{
         if(firstType.equals(secondType)){
             return handleSameTypes();
         }
-        return handleDifferentTypes();
+        return new AnvilRecipeResult(null, null, null);//handleDifferentTypes();
     }
 
     public int calculateCost(ItemStack first, ItemStack result){
