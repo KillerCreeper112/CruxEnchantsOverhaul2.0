@@ -772,8 +772,17 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
                 setSelectedEnchant(null);
                 changeView(false);
             }
+
+            boolean notify = false;
+            boolean hasInput = !INPUT.isBlank(INPUT.getItem());
             for(Integer slot : getEnchantmentListSlots()) {
                 slots.remove(slot);
+                if(hasInput && !notify){
+                    notify = true;
+                    setItem(slot, buildEnchantSelectionNotify(), true);
+                    continue;
+                }
+
                 setItem(slot, null, true);
             }
             return;
