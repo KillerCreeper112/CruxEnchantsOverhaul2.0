@@ -818,10 +818,16 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         changeView(false);
 
         int index = -1;
+        boolean notify = false;
         for(Integer slot : getEnchantmentListSlots()){
             slots.remove(slot);
             index++;
             if(index >= currentEnchantList.size()){
+                if(!notify){
+                    notify = true;
+                    setItem(slot, buildEnchantSelectionNotify(), true);
+                    continue;
+                }
                 setItem(slot, null, true);
                 continue;
             }
@@ -841,6 +847,27 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
                 }
             }, true);
         }
+    }
+
+    public ItemStack buildEnchantSelectionNotify(){
+        return CruxItem.create(Material.BOOKSHELF)
+            .itemModel(Crux.key("gui/question_mark"))
+            .itemName("<white>Enchantments not")
+            .addLoreFromString(
+                "<white>showing up?",
+                "<white>Each enchantment requires",
+                "<white>a certain amount of power.",
+                "",
+                "<white>You can increase an enchanting",
+                "<white>table's power by placing",
+                "<white>bookshelves around it.",
+                "",
+                "<white>You can also increase it by",
+                "<white>placing chiseled bookshelves",
+                "<white>with enchanted books placed",
+                "<white>inside of them!"
+            )
+            .item();
     }
 
     public InputContext buildInputContext(ItemStack input, EEnchant selectedEnchant, int level){
