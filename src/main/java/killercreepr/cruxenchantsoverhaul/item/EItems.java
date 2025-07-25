@@ -31,11 +31,23 @@ public class EItems {
         Crux.key("gui/blank")
     ));
 
-    public static final PluginItem EMPTY_SLOT_LAPIS = CruxItemRegistries.ITEMS.register(new GUIItem(
-        Crux.key("empty_slot_lapis"),
-        Material.LIGHT_GRAY_STAINED_GLASS_PANE,
-        Crux.key(slotSprites + "lapis")
-    ));
+    public static final PluginItem EMPTY_SLOT_LAPIS = CruxItemRegistries.ITEMS.register(new GenericPluginItem(
+        Crux.key("empty_slot_lapis")
+    ) {
+        @NotNull
+        @Override
+        public CruxedItem build(@Nullable Entity entity, @Nullable MergedTagContainer mergedTagContainer) {
+            return (CruxedItem) CruxedItem.cruxed(Material.LIGHT_GRAY_STAINED_GLASS_PANE)
+                .itemModel(Crux.key(slotSprites + "lapis"))
+                .itemName("<white>Place lapis lazuli to")
+                .addLoreFromString(
+                    "<white>enchant!",
+                    "<white>Or place an enchanted book",
+                    "<white>to upgrade!"
+                )
+                ;
+        }
+    });
 
     public static final PluginItem ENCHANT_TABLE_ON_1 = CruxItemRegistries.ITEMS.register(new GUIItem(
         Crux.key("enchant_table_on_1"),

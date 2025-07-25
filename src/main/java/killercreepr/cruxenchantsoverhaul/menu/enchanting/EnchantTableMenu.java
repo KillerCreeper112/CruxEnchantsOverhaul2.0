@@ -106,7 +106,7 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
                         ItemStack book = LAPIS.getItem();
                         if(!CruxItem.isEmpty(book)){
                             CruxEntityUtil.giveOrDrop(ctx.getWhoClicked(), book.clone());
-                            book.setAmount(0);
+                            LAPIS.setItem(LAPIS.getSlottedItemReplacement(), true);
                             Crux.scheduler().runTask(() ->{
                                 changeView(false);
                                 update();
@@ -154,6 +154,9 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
                     if(isLapisEnchantedBook()){
                         ItemStack lapis = LAPIS.getItem();
                         lapis.setAmount(lapis.getAmount()-1);
+                        if(CruxItem.isEmpty(lapis)){
+                            LAPIS.setItem(LAPIS.getSlottedItemReplacement(), true);
+                        }
                     }
                 }
                 update();
@@ -871,7 +874,7 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
                 "<white>table's power by placing",
                 "<white>bookshelves around it.",
                 "",
-                "<white>You can also increase it by",
+                "<white>You can increase it further by",
                 "<white>placing chiseled bookshelves",
                 "<white>with enchanted books placed",
                 "<white>inside of them!"

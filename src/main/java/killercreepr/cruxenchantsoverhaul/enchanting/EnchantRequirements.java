@@ -48,6 +48,9 @@ public class EnchantRequirements {
             ItemStack item = menu.LAPIS.getItem();
             if(!menu.LAPIS.isBlank(item)){
                 item.setAmount(item.getAmount()-lapis);
+                if(CruxItem.isEmpty(item)){
+                    menu.LAPIS.setItem(menu.LAPIS.getSlottedItemReplacement(), true);
+                }
             }
         }
         if(exp > 0 && e instanceof Player p){
