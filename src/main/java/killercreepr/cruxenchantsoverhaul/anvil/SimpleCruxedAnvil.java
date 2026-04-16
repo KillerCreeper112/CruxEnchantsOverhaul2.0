@@ -10,6 +10,7 @@ import killercreepr.cruxenchantsoverhaul.enchanting.Enchanter;
 import killercreepr.cruxenchantsoverhaul.item.MagicCapacityHandler;
 import killercreepr.cruxenchantsoverhaul.registries.EnchantsRegistries;
 import net.kyori.adventure.key.Key;
+import org.bukkit.Bukkit;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
