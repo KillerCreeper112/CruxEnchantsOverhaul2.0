@@ -380,7 +380,8 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
 
         var handler = CruxEnchantsOverhaul.inst().getMagicCapacityHandler();
         EEItem eeItem = new EEItem(item);
-        if(eeItem.wouldExceedMagicCapacity(handler.getMagicUsage(enchant.enchantment(), level+1))) return CanUpgradeEnchant.WOULD_EXCEED_ENCHANTING_CAPACITY;
+        var difference = handler.getMagicUsage(enchant.enchantment(), level+1) - handler.getMagicUsage(enchant.enchantment(), level);
+        if(eeItem.wouldExceedMagicCapacity(difference)) return CanUpgradeEnchant.WOULD_EXCEED_ENCHANTING_CAPACITY;
 
         if(!hasEnoughPowerFor(item,enchant, level+1)) return CanUpgradeEnchant.NOT_ENOUGH_POWER;
 
