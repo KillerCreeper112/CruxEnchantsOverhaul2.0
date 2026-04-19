@@ -2,6 +2,7 @@ package killercreepr.cruxenchantsoverhaul.core.enchant;
 
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
+import killercreepr.crux.api.component.DataComponentHandler;
 import killercreepr.crux.api.item.dynamic.DynamicItem;
 import killercreepr.crux.api.text.context.TextParserContext;
 import killercreepr.crux.api.valueproviders.number.NumberProvider;
@@ -29,8 +30,8 @@ public class SimpleEEnchant extends SimpleCruxEnchant implements EEnchant {
     protected final NumberProvider requiredLapis;
     protected final double quality;
     protected final boolean discoverable;
-    public SimpleEEnchant(Key key, String description, ApplicableItemGroup applicableItemGroup, DynamicItem icon, EEIngredientCalculator ingredientCalculator, NumberProvider requiredPower, NumberProvider requiredLevel, NumberProvider requiredExp, NumberProvider requiredLapis, double quality, boolean discoverable) {
-        super(key, description, applicableItemGroup);
+    public SimpleEEnchant(Key key, String description, ApplicableItemGroup applicableItemGroup, DataComponentHandler components, DynamicItem icon, EEIngredientCalculator ingredientCalculator, NumberProvider requiredPower, NumberProvider requiredLevel, NumberProvider requiredExp, NumberProvider requiredLapis, double quality, boolean discoverable) {
+        super(key, description, applicableItemGroup, components);
         this.icon = icon;
         this.ingredientCalculator = ingredientCalculator;
         this.requiredPower = requiredPower;
