@@ -7,7 +7,9 @@
 max_enchanting_table_power: 300
 
 # How much power an enchanting table will receive when a bookshelf is placed
-# 1 block near it
+# 1 block near it.
+#
+# An enchanting table's power may determine what enchants are available (depending on how you configure them in the eenchants config).
 power_per_bookshelf: 5
 
 # If a chiseled bookshelf is placed near, this is how much power the enchanting table

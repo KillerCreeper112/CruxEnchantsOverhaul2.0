@@ -1,6 +1,4 @@
 {
-  "DOCUMENTATION": "",
-
   "default_required_level": "ceil(1.2 * <math:pow:<level>:1.6> * <quality>)",
   "default_required_power": "ceil(3 * <math:pow:<level>:1.6> * <quality>)",
   "default_required_exp": "floor(10 * <math:pow:<level>:1.5> * <quality>)",
