@@ -4,8 +4,10 @@ import killercreepr.crux.api.communication.CreateSound;
 import killercreepr.crux.api.data.DataExchange;
 import killercreepr.crux.api.item.CruxItem;
 import killercreepr.crux.api.text.context.InputContext;
+import killercreepr.crux.api.text.context.TextParserContext;
 import killercreepr.crux.api.text.tags.container.MergedTagContainer;
 import killercreepr.crux.api.text.tags.container.TagContainer;
+import killercreepr.crux.api.valueproviders.number.NumberProvider;
 import killercreepr.crux.core.Crux;
 import killercreepr.crux.core.text.resolver.Tag;
 import killercreepr.crux.core.util.*;
@@ -24,13 +26,17 @@ import killercreepr.cruxenchantsoverhaul.registries.EnchantsRegistries;
 import killercreepr.cruxmenus.api.menu.container.MenuContainer;
 import killercreepr.cruxmenus.api.menu.contex.SlotContext;
 import killercreepr.cruxmenus.api.menu.holder.MenuHolder;
+import killercreepr.cruxmenus.api.menu.holder.MenuItemHolder;
 import killercreepr.cruxmenus.api.menu.slot.Slot;
 import killercreepr.cruxmenus.api.menu.slot.TempSlotted;
 import killercreepr.cruxmenus.core.menu.ConfigMenu;
 import killercreepr.cruxmenus.core.menu.slot.SimpleFixedSlot;
 import killercreepr.cruxmenus.core.menu.slot.SimpleTempStoredSlot;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
-import org.bukkit.*;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Sound;
+import org.bukkit.Statistic;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
@@ -447,13 +453,16 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         return holder.info().getOrThrow("back_page_slot", Number.class).intValue();
     }
     public int getRequiredXPSlot(){
-        return holder.info().getOrThrow("required_xp_slot", Number.class).intValue();
+        return getDataItems().get("required_xp").info().get("slot", NumberProvider.class).value().intValue();
+        //return holder.info().getOrThrow("required_xp_slot", Number.class).intValue();
     }
     public int getRequiredLapisSlot(){
-        return holder.info().getOrThrow("required_lapis_slot", Number.class).intValue();
+        return getDataItems().get("required_lapis").info().get("slot", NumberProvider.class).value().intValue();
+        //return holder.info().getOrThrow("required_lapis_slot", Number.class).intValue();
     }
     public int getRequiredLevelSlot(){
-        return holder.info().getOrThrow("required_level_slot", Number.class).intValue();
+        return getDataItems().get("required_level").info().get("slot", NumberProvider.class).value().intValue();
+        //return holder.info().getOrThrow("required_level_slot", Number.class).intValue();
     }
 
     public ItemStack buildResult(ItemStack input){
@@ -538,22 +547,35 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
     }*/
 
     public CruxItem buildEnchantItem(EEnchant enchant){
+        var holder = getDataItems().get("enchant_item");
+
         int maxLevel = getMaxEnchantLevel(enchant);
         int level = Math.min(getNextEnchantLevel(enchant), maxLevel);
-        String name = enchant.displayName();
-        if(level > 1 || maxLevel > 1){
-            name += " " + CruxMath.numeral(level) + " <gray>/</gray> " + CruxMath.numeral(maxLevel);
+        String name = enchant.displayName() +
+          ((level > 1 || maxLevel > 1) ? (" " + CruxMath.numeral(level) + " <gray>/</gray> " + CruxMath.numeral(maxLevel)) : "");
+
+        if(holder != null){
+            return CruxItem.wrap(enchant.getIcon())
+              .editThis(crux ->{
+                  holder.getItem().value().applyComponents(crux, TextParserContext.tags(
+                    TagContainer.merged(this.holder.getRegistry().getFormat().tags())
+                      .add(Tag.parsed("max_level", maxLevel + ""))
+                      .add(Tag.parsed("level", level + ""))
+                      .add(Tag.parsed("name", name))
+                      .add(Tag.parsed("eenchant_usage", enchant.enchantUsage() + ""))
+                  ));
+              });
         }
         return CruxItem.wrap(enchant.getIcon())
             .customName("<!i><yellow>" + name)
             .editThis(crux ->{
-                if(enchantRequirements != null && CruxEntityUtil.isNonSurvival(getViewer())){
+                /*if(enchantRequirements != null && CruxEntityUtil.isNonSurvival(getViewer())){
                     crux.insertLoreFromString(0, "<white>Power: " + block.getPower() + " / " + enchantRequirements.requiredPower);
-                }
-                crux.insertLoreFromString(0,
+                }*/
+                /*todo add back in enchant usage crux.insertLoreFromString(0,
                     "<white><latinfont:Enchant Usage>: <gold>" + (enchant.enchantUsage() * level),
                     ""
-                );
+                );*/
                 crux.addLoreFromString(
                     ""
                 );
@@ -582,14 +604,16 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         int maxLevel = getMaxEnchantLevel(enchant);
         int upgradeLevel = getUpgradeLevel(enchant, entry.getValue());
         int level = Math.min(upgradeLevel, maxLevel);
+
         return CruxItem.wrap(enchant.getIcon())
             .customName("<!i><yellow>" + formatName(enchant, upgradeLevel))
             .editThis(crux ->{
                 if(enchants.size() == 1){
-                    crux.insertLoreFromString(0,
+                    //todo add back in enchant usage
+                    /*crux.insertLoreFromString(0,
                         "<white><latinfont:Enchant Usage>: <gold>" + (enchant.enchantUsage() * level),
                         ""
-                    );
+                    );*/
                 }else{
                     crux.lore(null);
                     enchants.forEach((eEnchant, eLevel) ->{
@@ -641,6 +665,11 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         CruxItem crux = buildEnchantItem(enchant);
 
         var canUpgrade = canUpgradeLevel(getViewer(), enchant, getCurrentEnchantLevel(enchant));
+        List<String> list = holder.info().get("item_selection_" + canUpgrade.name().toLowerCase(), List.class);
+        if(list != null){
+            crux.addLoreFromString(list);
+            return crux;
+        }
         switch (canUpgrade){
             case YES -> {
                 crux.addLoreFromString("<yellow><latinfont:Click to select>");
@@ -863,6 +892,8 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
     }
 
     public ItemStack buildEnchantSelectionNotify(){
+        var holder = getDataItems().get("enchant_selection_notify");
+        if(holder != null) return holder.getItem().value().buildItem(TextParserContext.empty());
         return CruxItem.create(Material.BOOKSHELF)
             .itemModel(Crux.key("gui/question_mark"))
             .itemName("<white>Enchantments not")
@@ -946,9 +977,26 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
         setItem(getRequiredLapisSlot(), buildRequiredLapisItem(enchantRequirements), true);
     }
 
+    public Map<String, MenuItemHolder> getDataItems(){
+        return holder.info().getOrDefault("items", Map.class, Map.of());
+    }
+
     public ItemStack buildRequiredXPItem(EnchantRequirements requirements){
         if(requirements.exp < 1) return null;
-        return CruxItem.create(Material.EXPERIENCE_BOTTLE)
+        var item = getDataItems().get("required_xp").getItem().value().buildItem(TextParserContext.tags(
+          TagContainer.merged(holder.getRegistry().getFormat().tags())
+            .hook(getViewer())
+            .add(Tag.parsed("current_exp_points", getExperiencePoints(getViewer()) + ""))
+            .add(Tag.parsed("required_exp", requirements.exp + ""))
+            .add(Tag.parsed("requirement_count", Math.min(requirements.exp, 99) + ""))
+            .add(Tag.parsed("requirement_text", requirementText(getExperiencePoints(getViewer()), requirements.exp))
+            )));
+        if(item != null){
+            item.editMeta(meta -> meta.setMaxStackSize(99));
+        }
+        return item;
+        //return holder.info().getOrThrow("required_xp_item", DynamicItem.class).buildItem(TextParserContext.empty());
+        /*return CruxItem.create(Material.EXPERIENCE_BOTTLE)
             .itemModel(Crux.key("gui/exp_orb"))
             .itemName("<white>Experience Points Cost")
             .addLoreFromString(
@@ -958,7 +1006,7 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
             .editMeta(meta ->{
                 meta.setMaxStackSize(99);
             })
-            .item();
+            .item();*/
     }
 
     public String requirementText(int value, int max){
@@ -968,25 +1016,49 @@ public class EnchantTableMenu extends ConfigMenu implements EnchantingMenu, Temp
 
     public ItemStack buildRequiredLevelItem(EnchantRequirements requirements){
         if(requirements.requiredLevel < 1) return null;
-        return CruxItem.create(Material.EXPERIENCE_BOTTLE)
+        var item = getDataItems().get("required_level").getItem().value().buildItem(TextParserContext.tags(
+          TagContainer.merged(holder.getRegistry().getFormat().tags())
+            .hook(getViewer())
+            .add(Tag.parsed("current_level", getLevel(getViewer()) + ""))
+            .add(Tag.parsed("required_level", requirements.requiredLevel + ""))
+            .add(Tag.parsed("requirement_count", Math.min(requirements.requiredLevel, 99) + ""))
+            .add(Tag.parsed("requirement_text", requirementText(getLevel(getViewer()), requirements.requiredLevel)))
+        ));
+        if(item != null){
+            item.editMeta(meta -> meta.setMaxStackSize(99));
+        }
+        return item;
+        /*return CruxItem.create(Material.EXPERIENCE_BOTTLE)
             .itemName("<white>Required Level")
             .addLoreFromString(
                 requirementText(getLevel(getViewer()), requirements.requiredLevel)
                 //"<gray>Power: " + requirementText(block.getPower(), requirements.requiredPower)
             )
             .amount(Math.min(requirements.requiredLevel, 99))
-            .item();
+            .item();*/
     }
 
     public ItemStack buildRequiredLapisItem(EnchantRequirements requirements){
         if(requirements.lapis < 1) return null;
-        return CruxItem.create(Material.LAPIS_LAZULI)
+        var item = getDataItems().get("required_lapis").getItem().value().buildItem(TextParserContext.tags(
+          TagContainer.merged(holder.getRegistry().getFormat().tags())
+            .hook(getViewer())
+            .add(Tag.parsed("current_lapis", getLapisAmount() + ""))
+            .add(Tag.parsed("required_lapis", requirements.lapis + ""))
+            .add(Tag.parsed("requirement_count", Math.min(requirements.lapis, 99) + ""))
+            .add(Tag.parsed("requirement_text", requirementText(getLapisAmount(), requirements.lapis)))
+        ));
+        if(item != null){
+            item.editMeta(meta -> meta.setMaxStackSize(99));
+        }
+        return item;
+        /*return CruxItem.create(Material.LAPIS_LAZULI)
             .itemName("<white>Lapis Lazuli Cost")
             .addLoreFromString(
                 requirementText(getLapisAmount(), requirements.lapis)
             )
             .amount(Math.min(requirements.lapis, 99))
-            .item();
+            .item();*/
     }
 
     public void updateInputData(){

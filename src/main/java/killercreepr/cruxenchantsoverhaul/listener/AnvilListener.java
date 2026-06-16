@@ -18,7 +18,7 @@ public class AnvilListener implements Listener {
     public void onPrepareAnvil(PrepareAnvilEvent event){
         AnvilView view = event.getView();
         AnvilInventory inv = event.getInventory();
-        view.setMaximumRepairCost(Integer.MAX_VALUE); //Remove "too expensive"
+        view.setMaximumRepairCost(Integer.MAX_VALUE); //Remove too expensive
 
         ItemStack first = inv.getFirstItem();
         ItemStack second = inv.getSecondItem();

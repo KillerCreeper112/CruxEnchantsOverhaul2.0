@@ -1,0 +1,79 @@
+data:
+  enchant_list_slots: [
+    13, 14, 15, 16, 17,
+    22, 23, 24, 25, 26,
+    31, 32, 33, 34, 35,
+    40, 41, 42, 43, 44
+  ]
+  select_title: '<white><crux_space:-8><font:"crux:enchanting_table">d</font><crux_space:-168><dark_gray>Enchant'
+  select_invalid_title: '<white><crux_space:-8><font:"crux:enchanting_table">e</font><crux_space:-168><dark_gray>Enchant'
+  select_no_ingredients_title: '<white><crux_space:-8><font:"crux:enchanting_table">f</font><crux_space:-168><dark_gray>Enchant'
+  select_icon_index: 16
+  select_ingredients_indexes: [
+    32, 33,
+    41, 42
+  ]
+  ingredient_input_slots: [
+    28, 29,
+    37, 38
+  ]
+  input_slot: 10
+  lapis_slot: 11
+  result_slot: 14
+  next_page_slot: 53
+  back_page_slot: 52
+  item_selection_yes:
+    - "<yellow><latinfont:Click to select>"
+  item_selection_max_level:
+    - "<red><latinfont:Max Level>"
+  item_selection_not_enough_power:
+    - "<red><latinfont:Not enough power>"
+    - "<gray>(Requires more bookshelves"
+    - "<gray>to be placed around enchanting table)"
+  items:
+    required_xp:
+      slot: 34
+      item:
+        material: minecraft:experience_bottle
+        item_model: crux:gui/exp_orb
+        name: <white>Experience Points Cost
+        lore:
+          - "<requirement_text>"
+        amount: <requirement_count>
+    required_level:
+      slot: 25
+      item:
+        material: minecraft:experience_bottle
+        name: <white>Required Level
+        lore:
+          - "<requirement_text>"
+        amount: "<requirement_count>"
+    required_lapis:
+      slot: 43
+      item:
+        material: lapis_lazuli
+        name: Required Lapis
+        lore:
+          - "<requirement_text>"
+        amount: "<requirement_count>"
+    enchant_selection_notify:
+      item:
+        material: bookshelf
+        item_model: crux:gui/question_mark
+        name: "<white>Enchantments not"
+        lore:
+          - "<white>showing up?"
+          - "<white>Each enchantment requires"
+          - "<white>a certain amount of power."
+          - ""
+          - "<white>You can increase an enchanting"
+          - "<white>table's power by placing"
+          - "<white>bookshelves around it."
+          - ""
+          - "<white>You can increase it further by"
+          - "<white>placing chiseled bookshelves"
+          - "<white>with enchanted books placed"
+          - "<white>inside of them!"
+
+title: '<white><crux_space:-8><font:"crux:enchanting_table">1</font><crux_space:-168><dark_gray>Enchant'
+size: 54

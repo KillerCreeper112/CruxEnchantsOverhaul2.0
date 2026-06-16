@@ -38,8 +38,6 @@ import killercreepr.cruxenchantsoverhaul.tag.CruxEnchantsOverhaulLoreTag;
 import killercreepr.cruxenchantsoverhaul.tag.EnchDataGlobalTag;
 import killercreepr.cruxenchantsoverhaul.tag.EnchDataTag;
 import killercreepr.cruxenchantsoverhaul.tag.ItemStackTags;
-import killercreepr.cruxenchantsoverhaul.values.DefaultValues;
-import killercreepr.cruxenchantsoverhaul.values.ValuesProvider;
 import killercreepr.cruxmenus.api.menu.holder.MenuHolder;
 import killercreepr.cruxmenus.core.menu.ConfigMenu;
 import killercreepr.cruxmenus.core.menu.holder.SimpleMenuHolder;
@@ -48,18 +46,19 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.List;
 
 public class CruxEnchantsOverhaul extends CruxPlugin {
     private static CruxEnchantsOverhaul instance;
     public static CruxEnchantsOverhaul inst(){ return instance; }
 
-    protected ValuesProvider values;
+    protected Config values;
 
-    public ValuesProvider values() {
+    public Config values() {
         return values;
     }
 
-    public void values(@NotNull ValuesProvider values) {
+    public void values(@NotNull Config values) {
         this.values = values;
     }
 
@@ -158,10 +157,15 @@ public class CruxEnchantsOverhaul extends CruxPlugin {
             );
         }
 
+        saveResource("anvil.yml");
+        saveResource("config.yml");
+        saveResource("eenchants.json");
+        saveResourceFolder("menus");
         if(CruxRegistries.MODULES.containsKey(StandardModules.CRUX_CONFIGS)){
             values(new Config(this, "config"));
         }else{
-            values(new DefaultValues());
+            throw new IllegalStateException("CruxConfigs needs to be installed");
+            //values(new DefaultValues());
         }
         setBlightHandler(new CfgMagicCapacityHandler(values));
         setEnchanter(new EEnchanter(magicCapacityHandler));
@@ -173,6 +177,17 @@ public class CruxEnchantsOverhaul extends CruxPlugin {
     public void reload() {
         super.reload();
         values.reload(this);
+        var anvil = BukkitDataFile.parseFromGeneralPath(
+          CruxFolder.file(this, "anvil"), false
+        );
+        if(anvil != null){
+            Collection<AnvilRecipe> recipes = anvil.deserializeOrDefault("anvil_recipes", new TypeToken<Collection<AnvilRecipe>>(){}.getType(), List.of());
+            recipes.forEach(recipe ->{
+                EnchantsRegistries.ANVIL_RECIPES.register(recipe);
+                log("Registered anvil recipe: " + recipe.key());
+            });
+            anvil.close();
+        }
         CruxCore.inst().cruxMenus().menuRegistry().loadConfiguration(
             new CruxFolder(this, "menus").file()
         );
@@ -189,7 +204,7 @@ public class CruxEnchantsOverhaul extends CruxPlugin {
             if(list != null){
                 list.forEach(ee ->{
                     EnchantsRegistries.EENCHANT.register(ee);
-                    Crux.logInfo("Registered EEnchant: " + ee.key());
+                    log("Registered EEnchant: " + ee.key());
                 });
             }
             eeCfg.close();

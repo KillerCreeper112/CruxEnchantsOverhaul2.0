@@ -1,0 +1,759 @@
+{
+  "DOCUMENTATION": "",
+
+  "default_required_level": "ceil(1.2 * <math:pow:<level>:1.6> * <quality>)",
+  "default_required_power": "ceil(3 * <math:pow:<level>:1.6> * <quality>)",
+  "default_required_exp": "floor(10 * <math:pow:<level>:1.5> * <quality>)",
+  "default_required_lapis": "ceil(1.5 * <math:pow:<level>:1.3> * <quality>)",
+  "default_ingredient_amount": "ceil(1.3 * <math:pow:<level>:1.3> * <quality>)",
+  
+  "default_required_lapis_old": "2 + ceil(2 * <math:pow:<level>:1.4>)",
+  "default_required_exp_old": "40 + ceil(2 * <math:pow:<level>:1.8>)", 
+  
+  "values": [
+    {
+      "enchant": "minecraft:sharpness",
+      "description": "Increases attack damage",
+      "icon": {
+        "material": "minecraft:iron_sword",
+        "hide_flags": true
+      },
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:amethyst_shard"
+        ]
+      },
+      "quality": 1.6,
+      "required_level_addon": "3+",
+      "required_exp_addon": "40+",
+      "required_lapis_addon": "2+"
+    },
+    {
+      "enchant": "minecraft:lunge",
+      "description": "Causes jab attacks to propel the wielder forward",
+      "icon": {
+        "material": "minecraft:iron_spear",
+        "hide_flags": true
+      },
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:slime_ball"
+        ]
+      },
+      "quality": 1.6,
+      "required_level_addon": "3+",
+      "required_exp_addon": "40+",
+      "required_lapis_addon": "2+"
+    },
+    {
+      "enchant": "minecraft:unbreaking",
+      "description": "Chance for an item to avoid durability reduction",
+      "icon": "minecraft:iron_block",
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:obsidian"
+        ]
+      },
+      "quality": 2,
+      "required_level_addon": "1+",
+      "required_exp_addon": "50+",
+      "required_lapis_addon": "2+"
+    },
+    {
+      "enchant": "minecraft:fire_aspect",
+      "description": "Sets the target on fire upon hit",
+      "icon": "minecraft:blaze_powder",
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:fire_charge"
+        ]
+      },
+      "quality": 3,
+      "required_level_addon": "18+",
+      "required_exp_addon": "100+",
+      "required_power_addon": "25+"
+    },
+    {
+      "enchant": "minecraft:protection",
+      "description": "Reduces damage taken",
+      "icon": {
+        "material": "minecraft:iron_chestplate",
+        "hide_flags": true
+      },
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:diamond"
+        ]
+      },
+      "quality": 1.8,
+      "required_level_addon": "3+",
+      "required_exp_addon": "40+",
+      "required_lapis_addon": "2+",
+      "required_power_addon": "6+"
+    },
+    {
+      "enchant": "minecraft:aqua_affinity",
+      "description": "Increases underwater mining speed",
+      "icon": {
+        "material": "minecraft:diamond_pickaxe",
+        "hide_flags": true
+      },
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:nautilus_shell"
+        ]
+      },
+      "quality": 2,
+      "required_level_addon": "25+",
+      "required_exp_addon": "120+",
+      "required_lapis_addon": "4+",
+      "required_power_addon": "35+"
+    },
+    {
+      "enchant": "minecraft:bane_of_arthropods",
+      "description": "Increases damage to arthropod mobs",
+      "icon": "minecraft:spider_eye",
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:fermented_spider_eye"
+        ]
+      },
+      "quality": 1.2,
+      "required_power": "ceil(3 * <math:pow:<level_zero>:1.8> * <quality>)"
+    },
+    {
+      "enchant": "minecraft:blast_protection",
+      "description": "Reduces damage taken from explosions and fireworks",
+      "icon": "minecraft:tnt",
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:tnt"
+        ]
+      },
+      "quality": 1.4,
+      "required_exp_addon": "20+",
+      "required_lapis_addon": "1+",
+      "required_power": "ceil(3 * <math:pow:<level_zero>:1.8> * <quality>)"
+    },
+    {
+      "enchant": "minecraft:depth_strider",
+      "description": "Increases underwater movement speed",
+      "icon": {
+        "material": "minecraft:diamond_boots",
+        "hide_flags": true
+      },
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:turtle_scute"
+        ]
+      },
+      "quality": 2.2,
+      "required_level_addon": "10+",
+      "required_exp_addon": "60+",
+      "required_lapis_addon": "1+",
+      "required_power_addon": "20+"
+    },
+    {
+      "enchant": "minecraft:efficiency",
+      "description": "Increases mining speed",
+      "icon": {
+        "material": "minecraft:iron_pickaxe",
+        "hide_flags": true
+      },
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:gold_ingot"
+        ]
+      },
+      "quality": 2,
+      "required_exp_addon": "60+",
+      "required_lapis_addon": "1+",
+      "required_power_addon": "7+"
+    },
+    {
+      "enchant": "minecraft:feather_falling",
+      "description": "Decreases fall damage",
+      "icon": "minecraft:feather",
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:feather",
+          "minecraft:phantom_membrane"
+        ]
+      },
+      "quality": 2.5,
+      "required_level_addon": "5+",
+      "required_exp_addon": "60+",
+      "required_lapis_addon": "1+",
+      "required_power_addon": "12+"
+    },
+    {
+      "enchant": "minecraft:luck_of_the_sea",
+      "description": "Increases the chance of treasure catches",
+      "icon": "minecraft:nautilus_shell",
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:emerald"
+        ]
+      },
+      "quality": 1.5,
+      "required_level_addon": "3+",
+      "required_exp_addon": "30+",
+      "required_lapis_addon": "1+"
+    },
+    {
+      "enchant": "minecraft:lure",
+      "description": "Decreases the wait time for a bite while fishing",
+      "icon": "minecraft:cod",
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:tropical_fish"
+        ]
+      },
+      "quality": 1.75,
+      "required_level_addon": "4+",
+      "required_exp_addon": "30+",
+      "required_lapis_addon": "1+",
+      "required_power_addon": "5+",
+      "required_power": "ceil(3 * <math:pow:<level_zero>:1.8> * <quality>)"
+    },
+    {
+      "enchant": "minecraft:multishot",
+      "description": "Shoots two extra arrows at once, at the cost of increasing incurred durability damage",
+      "icon": "minecraft:arrow",
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:arrow"
+        ],
+        "amount_addon": "48+"
+      },
+      "quality": 2.2,
+      "required_level_addon": "3+",
+      "required_exp_addon": "100+",
+      "required_lapis_addon": "2+",
+      "required_power_addon": "30+"
+    },
+    {
+      "enchant": "minecraft:piercing",
+      "description": "Causes arrows to pierce through entities",
+      "icon": "minecraft:spectral_arrow",
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:iron_ingot"
+        ]
+      },
+      "quality": 2,
+      "required_level_addon": "3+",
+      "required_exp_addon": "60+",
+      "required_lapis_addon": "1+",
+      "required_power_addon": "15+"
+    },
+    {
+      "enchant": "minecraft:power",
+      "description": "Increases arrow damage",
+      "icon": "minecraft:bow",
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:amethyst_shard"
+        ]
+      },
+      "quality": 2.5,
+      "required_level_addon": "3+",
+      "required_exp_addon": "50+",
+      "required_lapis_addon": "1+",
+      "required_power_addon": "7+",
+      "required_power": "ceil(3 * <math:pow:<level_zero>:1.8> * <quality>)"
+    },
+    {
+      "enchant": "minecraft:projectile_protection",
+      "description": "Reduces damage taken from projectiles",
+      "icon": {
+        "material": "minecraft:chainmail_chestplate",
+        "hide_flags": true
+      },
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:spectral_arrow"
+        ]
+      },
+      "quality": 1.2,
+      "required_power": "ceil(3 * <math:pow:<level_zero>:1.8> * <quality>)"
+    },
+    {
+      "enchant": "minecraft:punch",
+      "description": "Increases arrow knockback",
+      "icon": "minecraft:piston",
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:piston"
+        ]
+      },
+      "quality": 2,
+      "required_level_addon": "5+",
+      "required_exp_addon": "85+",
+      "required_lapis_addon": "1+",
+      "required_power_addon": "9+"
+    },
+    {
+      "enchant": "minecraft:fire_protection",
+      "description": "Reduces damage taken from fire",
+      "icon": {
+        "material": "minecraft:netherite_chestplate",
+        "hide_flags": true
+      },
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:blaze_powder"
+        ]
+      },
+      "quality": 1.2,
+      "required_power": "ceil(3 * <math:pow:<level_zero>:1.8> * <quality>)"
+    },
+    {
+      "enchant": "minecraft:quick_charge",
+      "description": "Reduces time to load crossbow",
+      "icon": "minecraft:crossbow",
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:clock"
+        ]
+      },
+      "quality": 2,
+      "required_level_addon": "5+",
+      "required_exp_addon": "80+",
+      "required_lapis_addon": "1+",
+      "required_power_addon": "12+"
+    },
+    {
+      "enchant": "minecraft:respiration",
+      "description": "Increases underwater breathing time",
+      "icon": {
+        "material": "minecraft:turtle_helmet",
+        "hide_flags": true
+      },
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:nautilus_shell"
+        ]
+      },
+      "quality": 4,
+      "required_level_addon": "7+",
+      "required_exp_addon": "160+",
+      "required_lapis_addon": "1+",
+      "required_power_addon": "11+"
+    },
+    {
+      "enchant": "minecraft:riptide",
+      "description": "Launches the user when in water or rain",
+      "icon": {
+        "material": "minecraft:trident",
+        "hide_flags": true
+      },
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:heart_of_the_sea"
+        ]
+      },
+      "quality": 4,
+      "required_level_addon": "11+",
+      "required_exp_addon": "180+",
+      "required_lapis_addon": "3+",
+      "required_power_addon": "40+"
+    },
+    {
+      "enchant": "minecraft:silk_touch",
+      "description": "Causes certain blocks drop themselves instead of their normal drops",
+      "icon": "minecraft:grass_block",
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:ender_pearl"
+        ]
+      },
+      "quality": 4,
+      "required_level_addon": "15+",
+      "required_exp_addon": "200+",
+      "required_lapis_addon": "1+",
+      "required_power_addon": "40+"
+    },
+    {
+      "enchant": "minecraft:smite",
+      "description": "Increases damage to undead mobs",
+      "icon": "minecraft:rotten_flesh",
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:rotten_flesh"
+        ]
+      },
+      "quality": 1.4,
+      "required_power": "ceil(3 * <math:pow:<level_zero>:1.8> * <quality>)"
+    },
+    {
+      "enchant": "minecraft:sweeping_edge",
+      "description": "Increases sweep attack damage",
+      "icon": {
+        "material": "minecraft:netherite_sword",
+        "hide_flags": true
+      },
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:quartz"
+        ]
+      },
+      "quality": 1.8,
+      "required_level_addon": "1+",
+      "required_exp_addon": "30+",
+      "required_lapis_addon": "1+",
+      "required_power_addon": "12+"
+    },
+    {
+      "enchant": "minecraft:flame",
+      "description": "Sets shot arrows on fire",
+      "icon": "minecraft:blaze_powder",
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:magma_cream"
+        ]
+      },
+      "quality": 5,
+      "required_level_addon": "12+",
+      "required_exp_addon": "180+",
+      "required_lapis_addon": "1+",
+      "required_power_addon": "40+"
+    },
+    {
+      "enchant": "minecraft:fortune",
+      "description": "Chance to receive more item drops from certain blocks",
+      "icon": "minecraft:emerald_ore",
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:emerald"
+        ]
+      },
+      "quality": 3.5,
+      "required_level_addon": "8+",
+      "required_exp_addon": "180+",
+      "required_lapis_addon": "1+",
+      "required_power_addon": "30+"
+    },
+    {
+      "enchant": "minecraft:impaling",
+      "description": "Increases damage to aquatic mobs",
+      "icon": "minecraft:pufferfish_bucket",
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:prismarine_shard"
+        ]
+      },
+      "quality": 2,
+      "required_exp_addon": "30+",
+      "required_lapis_addon": "1+",
+      "required_power": "ceil(3 * <math:pow:<level_zero>:1.8> * <quality>)"
+    },
+    {
+      "enchant": "minecraft:infinity",
+      "description": "Prevents consumption of arrows",
+      "icon": "minecraft:arrow",
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:ender_eye"
+        ]
+      },
+      "quality": 7,
+      "required_level_addon": "20+",
+      "required_exp_addon": "300+",
+      "required_lapis_addon": "1+",
+      "required_power_addon": "70+"
+    },
+    {
+      "enchant": "minecraft:knockback",
+      "description": "Increases attack knockback",
+      "icon": "minecraft:piston",
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:piston"
+        ]
+      },
+      "quality": 1.8,
+      "required_level_addon": "1+",
+      "required_exp_addon": "85+",
+      "required_lapis_addon": "1+",
+      "required_power_addon": "8+"
+    },
+    {
+      "enchant": "minecraft:looting",
+      "description": "Chance to receive more item drops and/or rarer drops from certain mobs",
+      "icon": "minecraft:rabbit_foot",
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:emerald"
+        ]
+      },
+      "quality": 4,
+      "required_level_addon": "5+",
+      "required_exp_addon": "170+",
+      "required_lapis_addon": "1+",
+      "required_power_addon": "32+"
+    },
+    {
+      "enchant": "minecraft:loyalty",
+      "description": "Causes trident to return to its owner when landing after being thrown",
+      "icon": {
+        "material": "minecraft:trident",
+        "hide_flags": true
+      },
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:echo_shard"
+        ]
+      },
+      "quality": 7,
+      "required_level_addon": "4+",
+      "required_exp_addon": "100+",
+      "required_lapis_addon": "1+",
+      "required_power_addon": "55+"
+    },
+    {
+      "enchant": "minecraft:thorns",
+      "description": "Chance to damage entities that attack the user",
+      "icon": "minecraft:cactus",
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:cactus"
+        ]
+      },
+      "quality": 6,
+      "required_level_addon": "10+",
+      "required_exp_addon": "100+",
+      "required_lapis_addon": "1+",
+      "required_power_addon": "45+"
+    },
+    {
+      "enchant": "minecraft:density",
+      "description": "Increases the damage of smash attacks",
+      "icon": "minecraft:heavy_core",
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:copper_block"
+        ]
+      },
+      "quality": 1.8,
+      "required_level_addon": "6+",
+      "required_exp_addon": "50+",
+      "required_power": "ceil(3 * <math:pow:<level_zero>:1.8> * <quality>)"
+    },
+    {
+      "enchant": "minecraft:breach",
+      "description": "Reduces the effectiveness of armor of the victim",
+      "icon": "minecraft:flint",
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:flint"
+        ]
+      },
+      "quality": 1.8,
+      "required_level_addon": "6+",
+      "required_exp_addon": "50+",
+      "required_power": "ceil(3 * <math:pow:<level_zero>:1.8> * <quality>)"
+    },
+    {
+      "enchant": "minecraft:channeling",
+      "description": "Causes lightning to strike when thrown at an entity or lightning rod during a thunderstorm",
+      "icon": {
+        "material": "minecraft:trident",
+        "hide_flags": true
+      },
+      "ingredients": {
+        "type": "all_of",
+        "children": [
+          {
+            "type": "amount",
+            "ingredients": [
+              "minecraft:heart_of_the_sea"
+            ],
+            "amount": "ceil(1 * <math:pow:<level>:1> * <quality>)"
+          },
+          {
+            "type": "amount",
+            "ingredients": [
+              "minecraft:amethyst_shard"
+            ],
+            "amount": "ceil(1.2 * <math:pow:<level>:1.2> * <quality>)"
+          },
+          {
+            "type": "amount",
+            "ingredients": [
+              "minecraft:lightning_rod"
+            ],
+            "amount": "ceil(1.6 * <math:pow:<level>:1.6> * <quality>)"
+          }
+        ]
+      },
+      "quality": 2,
+      "required_level_addon": "30+",
+      "required_exp_addon": "200+",
+      "required_lapis_addon": "15+",
+      "required_power": "ceil(3 * <math:pow:<level_zero>:1.8> * <quality>)"
+    },
+    
+    
+    {
+      "enchant": "minecraft:mending",
+      "description": "Restores an item's durability when the user collects experience orbs",
+      "icon": "minecraft:nether_star",
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:nether_star"
+        ]
+      },
+      "discoverable": false,
+      "quality": 10,
+      "required_level": "25",
+      "required_exp": "350",
+      "required_lapis": "32",
+      "required_power": "100"
+    },
+    {
+      "enchant": "minecraft:frost_walker",
+      "description": "Turns water into frosted ice beneath the user's feet",
+      "icon": "minecraft:blue_ice",
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:blue_ice"
+        ]
+      },
+      "discoverable": false,
+      "quality": 3,
+      "required_level_addon": "10+",
+      "required_exp_addon": "100+",
+      "required_lapis_addon": "1+",
+      "required_power_addon": "55+"
+    },
+    {
+      "enchant": "minecraft:swift_sneak",
+      "description": "Decreases the movement speed decrease that occurs when sneaking",
+      "icon":{
+        "material": "minecraft:diamond_boots",
+        "hide_flags": true
+      },
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:sugar"
+        ]
+      },
+      "discoverable": false,
+      "quality": 2,
+      "required_level_addon": "10+",
+      "required_exp_addon": "100+",
+      "required_lapis_addon": "1+",
+      "required_power_addon": "35+"
+    },
+    {
+      "enchant": "minecraft:binding_curse",
+      "description": "Prevents the item from being removed from armor slots",
+      "icon": "minecraft:iron_bars",
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:iron_bars"
+        ]
+      },
+      "discoverable": false,
+      "quality": 1,
+      "required_level_addon": "10+",
+      "required_exp_addon": "100+",
+      "required_lapis_addon": "1+",
+      "required_power_addon": "30+"
+    },
+    {
+      "enchant": "minecraft:vanishing_curse",
+      "description": "Causes the item to disappear upon death",
+      "icon": "minecraft:copper_bars",
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:copper_bars"
+        ]
+      },
+      "discoverable": false,
+      "quality": 1,
+      "required_level_addon": "10+",
+      "required_exp_addon": "100+",
+      "required_lapis_addon": "1+",
+      "required_power_addon": "30+"
+    },
+    {
+      "enchant": "minecraft:wind_burst",
+      "description": "Causes a powerful upward knockback effect to be created upon executing a smash attack",
+      "icon": {
+        "material": "minecraft:mace",
+        "hide_flags": true
+      },
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:wind_charge"
+        ]
+      },
+      "discoverable": false,
+      "quality": 3,
+      "required_level_addon": "10+",
+      "required_exp_addon": "100+",
+      "required_lapis_addon": "1+",
+      "required_power_addon": "65+"
+    },
+    {
+      "enchant": "minecraft:soul_speed",
+      "description": "Increases movement speed when on soul sand or soul soil",
+      "icon": "minecraft:soul_soil",
+      "ingredients": {
+        "type": "amount",
+        "ingredients": [
+          "minecraft:soul_soil"
+        ]
+      },
+      "discoverable": false,
+      "quality": 1.9,
+      "required_level_addon": "10+",
+      "required_exp_addon": "100+",
+      "required_lapis_addon": "1+",
+      "required_power_addon": "40+"
+    }
+  ]
+}

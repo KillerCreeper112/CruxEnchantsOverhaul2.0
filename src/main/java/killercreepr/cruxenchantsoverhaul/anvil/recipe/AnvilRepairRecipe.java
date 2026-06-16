@@ -66,7 +66,7 @@ public class AnvilRepairRecipe implements AnvilRecipe{
         TagContainer<StringResolver> tagContainer = TagContainer.string()
             .hook(first, TagsPrefixBuilder.addon("first_"))
             .hook(second, TagsPrefixBuilder.addon("second_"));
-        InputContext repairContext = InputContext.simple(StringTagProvider.build(tagContainer));
+        InputContext repairContext = InputContext.inputContext(StringTagProvider.build(tagContainer));
         int repair = repairAmount.sample(repairContext).intValue();
 
         ItemStack result = first.clone();
@@ -87,7 +87,7 @@ public class AnvilRepairRecipe implements AnvilRecipe{
             meta.displayName(rename == null || rename.isBlank() ? null : MiniMessage.miniMessage().deserialize(rename));
         });
 
-        InputContext ctx = InputContext.simple(StringTagProvider.build(
+        InputContext ctx = InputContext.inputContext(StringTagProvider.build(
             TagContainer.string()
                 .hook(first, TagsPrefixBuilder.addon("first_"))
                 .hook(second, TagsPrefixBuilder.addon("second_"))

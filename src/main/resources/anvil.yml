@@ -1,0 +1,284 @@
+anvil_recipes:
+  - key: leather_repair
+    experience_cost: 0
+    first_ingredient:
+      type: any_of
+      values:
+        - minecraft:leather_helmet
+        - minecraft:leather_chestplate
+        - minecraft:leather_leggings
+        - minecraft:leather_boots
+    second_ingredient:
+      - ingredient: minecraft:leather
+        repair_amount: <first_item_max_durability> * (.45 * <second_item_amount>)
+  - key: stone_repair
+    experience_cost: 0
+    first_ingredient:
+      type: any_of
+      values:
+        - minecraft:stone_sword
+        - minecraft:stone_pickaxe
+        - minecraft:stone_axe
+        - minecraft:stone_shovel
+        - minecraft:stone_hoe
+        - minecraft:stone_spear
+    second_ingredient:
+      - ingredient:
+          type: any_of
+          values:
+            - minecraft:cobblestone
+            - minecraft:stone
+            - minecraft:deepslate
+        repair_amount: <first_item_max_durability> * (.45 * <second_item_amount>)
+      - ingredient: crux:glinted_shard
+        repair_amount: <first_item_max_durability> * (.9 * <second_item_amount>)
+  - key: wooden_repair
+    experience_cost: 0
+    first_ingredient:
+      type: any_of
+      values:
+        - minecraft:wooden_sword
+        - minecraft:wooden_pickaxe
+        - minecraft:wooden_axe
+        - minecraft:wooden_shovel
+        - minecraft:wooden_hoe
+        - minecraft:wooden_spear
+    second_ingredient:
+      - ingredient:
+          type: any_of
+          values:
+            - "#crux:wooden_planks"
+        repair_amount: <first_item_max_durability> * (.45 * <second_item_amount>)
+      - ingredient:
+          type: any_of
+          values:
+            - minecraft:stick
+        repair_amount: <first_item_max_durability> * (.1 * <second_item_amount>)
+      - ingredient: crux:glinted_shard
+        repair_amount: <first_item_max_durability> * (.9 * <second_item_amount>)
+  - key: iron_repair
+    experience_cost: 0
+    first_ingredient:
+      type: any_of
+      values:
+        - minecraft:iron_helmet
+        - minecraft:iron_chestplate
+        - minecraft:iron_leggings
+        - minecraft:iron_boots
+        - minecraft:iron_sword
+        - minecraft:iron_pickaxe
+        - minecraft:iron_axe
+        - minecraft:iron_shovel
+        - minecraft:iron_hoe
+        - minecraft:iron_spear
+    second_ingredient:
+      - ingredient: minecraft:iron_nugget
+        repair_amount: <first_item_max_durability> * (.049 * <second_item_amount>)
+      - ingredient: minecraft:iron_ingot
+        repair_amount: <first_item_max_durability> * (.45 * <second_item_amount>)
+      - ingredient: minecraft:iron_block
+        repair_amount: <first_item_max_durability> * (4.05 * <second_item_amount>)
+      - ingredient: crux:glinted_shard
+        repair_amount: <first_item_max_durability> * (.9 * <second_item_amount>)
+
+  - key: golden_repair
+    experience_cost: 0
+    first_ingredient:
+      type: any_of
+      values:
+        - minecraft:golden_helmet
+        - minecraft:golden_chestplate
+        - minecraft:golden_leggings
+        - minecraft:golden_boots
+        - minecraft:golden_sword
+        - minecraft:golden_pickaxe
+        - minecraft:golden_axe
+        - minecraft:golden_shovel
+        - minecraft:golden_hoe
+        - minecraft:golden_spear
+    second_ingredient:
+      - ingredient: minecraft:gold_nugget
+        repair_amount: <first_item_max_durability> * (.049 * <second_item_amount>)
+      - ingredient: minecraft:gold_ingot
+        repair_amount: <first_item_max_durability> * (.45 * <second_item_amount>)
+      - ingredient: minecraft:gold_block
+        repair_amount: <first_item_max_durability> * (4.05 * <second_item_amount>)
+      - ingredient: crux:glinted_shard
+        repair_amount: <first_item_max_durability> * (.9 * <second_item_amount>)
+
+  - key: diamond_repair
+    experience_cost: 0
+    first_ingredient:
+      type: any_of
+      values:
+        - minecraft:diamond_helmet
+        - minecraft:diamond_chestplate
+        - minecraft:diamond_leggings
+        - minecraft:diamond_boots
+        - minecraft:diamond_sword
+        - minecraft:diamond_pickaxe
+        - minecraft:diamond_axe
+        - minecraft:diamond_shovel
+        - minecraft:diamond_hoe
+        - minecraft:diamond_spear
+    second_ingredient:
+      - ingredient: minecraft:diamond
+        repair_amount: <first_item_max_durability> * (.45 * <second_item_amount>)
+      - ingredient: minecraft:diamond_block
+        repair_amount: <first_item_max_durability> * (4.05 * <second_item_amount>)
+      - ingredient: crux:glinted_shard
+        repair_amount: <first_item_max_durability> * (.9 * <second_item_amount>)
+
+  - key: netherite_repair
+    experience_cost: 0
+    first_ingredient:
+      type: any_of
+      values:
+        - minecraft:netherite_helmet
+        - minecraft:netherite_chestplate
+        - minecraft:netherite_leggings
+        - minecraft:netherite_boots
+        - minecraft:netherite_sword
+        - minecraft:netherite_pickaxe
+        - minecraft:netherite_axe
+        - minecraft:netherite_shovel
+        - minecraft:netherite_hoe
+        - minecraft:netherite_spear
+    second_ingredient:
+      - ingredient: minecraft:netherite_ingot
+        repair_amount: <first_item_max_durability> * (2 * <second_item_amount>)
+      - ingredient: minecraft:netherite_scrap
+        repair_amount: <first_item_max_durability> * (.4 * <second_item_amount>)
+      - ingredient: crux:glinted_shard
+        repair_amount: <first_item_max_durability> * (.9 * <second_item_amount>)
+
+  - key: chainmail_repair
+    experience_cost: 0
+    first_ingredient:
+      type: any_of
+      values:
+        - minecraft:chainmail_helmet
+        - minecraft:chainmail_chestplate
+        - minecraft:chainmail_leggings
+        - minecraft:chainmail_boots
+    second_ingredient:
+      - ingredient: minecraft:iron_nugget
+        repair_amount: <first_item_max_durability> * (.049 * <second_item_amount>)
+      - ingredient: minecraft:iron_ingot
+        repair_amount: <first_item_max_durability> * (.45 * <second_item_amount>)
+      - ingredient: minecraft:iron_block
+        repair_amount: <first_item_max_durability> * (4.05 * <second_item_amount>)
+      - ingredient: minecraft:chain
+        repair_amount: <first_item_max_durability> * (.548 * <second_item_amount>)
+      - ingredient: crux:glinted_shard
+        repair_amount: <first_item_max_durability> * (.9 * <second_item_amount>)
+
+  - key: turtle_repair
+    experience_cost: 0
+    first_ingredient:
+      type: any_of
+      values:
+        - minecraft:turtle_helmet
+    second_ingredient:
+      - ingredient: minecraft:turtle_scute
+        repair_amount: <first_item_max_durability> * (.45 * <second_item_amount>)
+      - ingredient: crux:glinted_shard
+        repair_amount: <first_item_max_durability> * (.9 * <second_item_amount>)
+
+  - key: mace_repair
+    experience_cost: 0
+    first_ingredient:
+      type: any_of
+      values:
+        - minecraft:mace
+    second_ingredient:
+      - ingredient: minecraft:breeze_rod
+        repair_amount: <first_item_max_durability> * (.45 * <second_item_amount>)
+      - ingredient: crux:glinted_shard
+        repair_amount: <first_item_max_durability> * (.9 * <second_item_amount>)
+
+  - key: bow_repair
+    experience_cost: 0
+    first_ingredient:
+      type: any_of
+      values:
+        - minecraft:bow
+    second_ingredient:
+      - ingredient: minecraft:string
+        repair_amount: <first_item_max_durability> * (.45 * <second_item_amount>)
+      - ingredient: minecraft:stick
+        repair_amount: <first_item_max_durability> * (.45 * <second_item_amount>)
+      - ingredient: crux:glinted_shard
+        repair_amount: <first_item_max_durability> * (.9 * <second_item_amount>)
+
+  - key: crossbow_repair
+    experience_cost: 0
+    first_ingredient:
+      type: any_of
+      values:
+        - minecraft:crossbow
+    second_ingredient:
+      - ingredient: minecraft:string
+        repair_amount: <first_item_max_durability> * (.25 * <second_item_amount>)
+      - ingredient: minecraft:stick
+        repair_amount: <first_item_max_durability> * (.25 * <second_item_amount>)
+      - ingredient: minecraft:iron_ingot
+        repair_amount: <first_item_max_durability> * (.45 * <second_item_amount>)
+      - ingredient: minecraft:iron_nugget
+        repair_amount: <first_item_max_durability> * (.049 * <second_item_amount>)
+      - ingredient: crux:glinted_shard
+        repair_amount: <first_item_max_durability> * (.9 * <second_item_amount>)
+
+  - key: fishing_rod_repair
+    experience_cost: 0
+    first_ingredient:
+      type: any_of
+      values:
+        - minecraft:fishing_rod
+    second_ingredient:
+      - ingredient: minecraft:string
+        repair_amount: <first_item_max_durability> * (.45 * <second_item_amount>)
+      - ingredient: minecraft:stick
+        repair_amount: <first_item_max_durability> * (.45 * <second_item_amount>)
+      - ingredient: crux:glinted_shard
+        repair_amount: <first_item_max_durability> * (.9 * <second_item_amount>)
+
+  - key: shield_repair
+    experience_cost: 0
+    first_ingredient:
+      type: any_of
+      values:
+        - minecraft:shield
+    second_ingredient:
+      - ingredient: "#crux:wooden_planks"
+        repair_amount: <first_item_max_durability> * (.25 * <second_item_amount>)
+      - ingredient: minecraft:iron_ingot
+        repair_amount: <first_item_max_durability> * (.5 * <second_item_amount>)
+      - ingredient: minecraft:iron_nugget
+        repair_amount: <first_item_max_durability> * (.055 * <second_item_amount>)
+      - ingredient: crux:glinted_shard
+        repair_amount: <first_item_max_durability> * (.9 * <second_item_amount>)
+
+  - key: elytra_repair
+    experience_cost: 0
+    first_ingredient:
+      type: any_of
+      values:
+        - minecraft:elytra
+    second_ingredient:
+      - ingredient: minecraft:phantom_membrane
+        repair_amount: <first_item_max_durability> * (.45 * <second_item_amount>)
+      - ingredient: crux:glinted_shard
+        repair_amount: <first_item_max_durability> * (.9 * <second_item_amount>)
+
+  - key: trident_repair
+    experience_cost: 0
+    first_ingredient:
+      type: any_of
+      values:
+        - minecraft:trident
+    second_ingredient:
+      - ingredient: minecraft:prismarine_shard
+        repair_amount: <first_item_max_durability> * (.45 * <second_item_amount>)
+      - ingredient: crux:glinted_shard
+        repair_amount: <first_item_max_durability> * (.9 * <second_item_amount>)

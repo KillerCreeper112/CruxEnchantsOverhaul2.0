@@ -71,13 +71,16 @@ public class EnchantTableBlock extends SimpleActiveCruxBlock implements ManagedT
 
 
     protected int power;
-    protected final int maxPower = 300;//100;
     protected final CustomBlockData data;
     protected final EnchantData enchantData = new EnchantData();
     public EnchantTableBlock(@NotNull Block block, @NotNull CruxBlock cruxBlock) {
         super(block, cruxBlock);
         this.data = new CustomBlockData(block);
         load();
+    }
+
+    public int maxPower() {
+        return CruxEnchantsOverhaul.inst().values().MAX_ENCHANTING_TABLE_POWER.getInt();
     }
 
     public void load(){
@@ -152,8 +155,14 @@ public class EnchantTableBlock extends SimpleActiveCruxBlock implements ManagedT
     @Override
     public Event.Result interact(@NotNull PlayerInteractEvent event) {
         if(event.useInteractedBlock() == Event.Result.DENY) return event.useInteractedBlock();
-        event.setCancelled(true);
         Player p = event.getPlayer();
+
+        var permission = CruxEnchantsOverhaul.inst().values().CUSTOM_ENCHANTING_TABLE_PERMISSION.value();
+        if(permission != null && !p.hasPermission(permission)){
+            return event.useInteractedBlock();
+        }
+
+        event.setCancelled(true);
         updateTable();
 
         /*EnchanterProgress progress = getProgress(p.getUniqueId());
@@ -162,8 +171,14 @@ public class EnchantTableBlock extends SimpleActiveCruxBlock implements ManagedT
             return Event.Result.ALLOW;
         }*/
 
-
-        CruxCore.inst().cruxMenus().menuRegistry().menuHolders().get(Crux.key("enchanting_table")).open(p,
+        var holder = CruxCore.inst().cruxMenus().menuRegistry().menuHolders().get(Crux.key("enchanting_table"));
+        if(holder == null){
+            p.sendMessage("An error has occurred. Contact an administrator.");
+            throw new IllegalStateException(
+              "A custom enchanting table menu has not been setup! One should be setup in the CruxEnchantsOverhaul/menus folder, named 'enchanting_table'"
+            );
+        }
+        holder.open(p,
             DataExchange.builder()
                 .put(EnchantTableBlock.this)
                 .put(CruxEnchantsOverhaul.inst().getEnchanter())
@@ -181,6 +196,7 @@ public class EnchantTableBlock extends SimpleActiveCruxBlock implements ManagedT
     }
 
     public void updateTable(){
+        int maxPower = maxPower();
         int newPower = 0;
         for(int i : getValidNearBlocks().values()){
             newPower += i;
@@ -203,7 +219,9 @@ public class EnchantTableBlock extends SimpleActiveCruxBlock implements ManagedT
     public int getPower(@NotNull Block b){
         //todo
         switch (b.getType()){
-            case BOOKSHELF -> { return 5; }
+            case BOOKSHELF -> {
+                return CruxEnchantsOverhaul.inst().values().POWER_PER_BOOKSHELF.getInt();
+            }
             case CHISELED_BOOKSHELF -> {
                 ChiseledBookshelf data = (ChiseledBookshelf) b.getState();
                 int power = 0;
@@ -251,18 +269,20 @@ public class EnchantTableBlock extends SimpleActiveCruxBlock implements ManagedT
     }
 
     public int getItemPower(@NotNull ItemStack item){
+        var cfg = CruxEnchantsOverhaul.inst().values();
         switch (item.getType()){
             case BOOK -> {
-                return 1;
+                return cfg.POWER_PER_BOOK_IN_CHISELED_BOOKSHELF.getInt();
             }
             case ENCHANTED_BOOK -> {
-                AtomicInteger power = new AtomicInteger(2);
+                AtomicInteger power = new AtomicInteger(cfg.POWER_PER_ENCHANTED_BOOK_IN_CHISELED_BOOKSHELF.getInt());
                 if(item.getItemMeta() instanceof EnchantmentStorageMeta meta){
+                    var multiplier = cfg.POWER_PER_ENCHANT_ON_ENCHANTED_BOOK_PROGRESS.getFloat();
                     meta.getStoredEnchants().forEach((ench, level) ->{
                         int maxLevel = ench.getMaxLevel();
                         float progress = (float) level / (float) maxLevel;
 
-                        int addon = Math.round(3f * progress);
+                        int addon = Math.round(multiplier * progress);
                         power.addAndGet(addon);
                     });
                 }
@@ -292,7 +312,7 @@ public class EnchantTableBlock extends SimpleActiveCruxBlock implements ManagedT
     }
 
     public int getMaxPower() {
-        return maxPower;
+        return maxPower();
     }
 
     public CustomBlockData getData() {

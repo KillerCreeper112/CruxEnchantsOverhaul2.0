@@ -9,7 +9,6 @@ import killercreepr.cruxconfig.config.common.FileRegistry;
 import killercreepr.cruxconfig.config.common.element.FileElement;
 import killercreepr.cruxconfig.config.common.element.FileObject;
 import killercreepr.cruxconfig.config.common.handler.FileObjectHandler;
-import killercreepr.cruxcrafting.core.config.handler.SimpleFileCruxRecipeIngredient;
 import killercreepr.cruxenchantsoverhaul.api.enchant.EEIngredientCalculator;
 import killercreepr.cruxenchantsoverhaul.api.enchant.EEnchant;
 import killercreepr.cruxenchantsoverhaul.core.enchant.SimpleEEnchant;

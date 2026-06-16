@@ -1,6 +1,5 @@
 package killercreepr.cruxenchantsoverhaul.listener;
 
-import killercreepr.crux.api.entity.memory.EntityMemory;
 import killercreepr.cruxadvancements.core.entity.memory.AdvancementHolder;
 import killercreepr.cruxenchantsoverhaul.advancement.objective.TakeEnchantedItemObjective;
 import killercreepr.cruxenchantsoverhaul.event.EntityTakeEnchantedItemEvent;

@@ -10,5 +10,3 @@ dependencies:
       join-classpath: true # Defaults to true
     CruxCharms:
       required: false
-  #commands:
-  #reloadcruxe:
